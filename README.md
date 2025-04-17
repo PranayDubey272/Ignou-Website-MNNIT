@@ -1,5 +1,9 @@
 # MNNIT IGNOU Study Center Website
 
+This project was originally started by my seniors [https://github.com/bikashsahh/Mini_Project2k24] as part of the same assignment. I have continued and completed the work with new features, fixes, and a full deployment-ready structure.
+
+All previous contributors are credited, and my goal was to make the website functional and complete for academic use.
+
 The MNNIT IGNOU Study Center Website is a web application designed to facilitate seamless communication and coordination between students and the study center administration. It provides a centralized platform where students can access important announcements, notifications, and submit their assignments, while the administrators can manage and oversee the entire process.
 
 ## Features
