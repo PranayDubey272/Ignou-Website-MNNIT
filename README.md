@@ -1,4 +1,4 @@
-This project was originally started by our seniors [Their Names or Repo Link] as part of the same assignment. I have continued and completed the work with new features, fixes, and a full deployment-ready structure.
+This project was originally started by our seniors [https://github.com/bikashsahh/Mini_Project2k24] as part of the same assignment. I have continued and completed the work with new features, fixes, and a full deployment-ready structure.
 
 All previous contributors are credited, and my goal was to make the website functional and complete for academic submission.
 
