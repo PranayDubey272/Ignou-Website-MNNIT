@@ -80,7 +80,7 @@ npm start
 
 ## Contributing
 
-Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request, as this is for MNNIT(i am sure my professors will appreciate that :D )
 
 ## License
 
