@@ -20,8 +20,15 @@ export const verifyToken = (req, res, next) => {
   };
   
   export const verifyAdmin = (req, res, next) => {
-    if (!['admin', 'office_staff'].includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: "Forbidden - Admins or Office Staff only" });
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: "Forbidden - Admins only" });
+    }
+    return next(); // Always return
+  };
+  
+  export const verifyStaff = (req, res, next) => {
+    if (req.user.role !== 'office_staff') {
+      return res.status(403).json({ success: false, message: "Forbidden - Office Staff only" });
     }
     return next(); // Always return
   };

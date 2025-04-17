@@ -30,7 +30,7 @@ const Admin = () => {
       try {
         // Define the URL of the endpoint
         const URL =
-          "http://localhost:3000/verifyadmin";
+          "http://localhost:3000/verifystaff";
 
         // Define the token (replace 'your-token' with the actual token)
         const token = localStorage.getItem("token");
