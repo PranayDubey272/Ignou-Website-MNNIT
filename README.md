@@ -1,3 +1,9 @@
+This project was originally started by our seniors [https://github.com/bikashsahh/Mini_Project2k24] as part of the same assignment. I have continued and completed the work with new features, fixes, and a full deployment-ready structure.
+
+All previous contributors are credited, and my goal was to make the website functional and complete for academic submission.
+
+I chose to create a new repository to better organize and improve upon the existing code. Since I was unable to get permission from my seniors to merge the changes, this allowed me to ensure a more structured and deployable version of the project. Throughout, I’ve made sure to give full credit to the original contributors.
+
 # MNNIT IGNOU Study Center Website
 
 The MNNIT IGNOU Study Center Website is a web application designed to facilitate seamless communication and coordination between students and the study center administration. It provides a centralized platform where students can access important announcements, notifications, and submit their assignments, while the administrators can manage and oversee the entire process.
@@ -74,7 +80,7 @@ npm start
 
 ## Contributing
 
-Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request, as this is for MNNIT(i am sure my professors will appreciate that :D )
 
 ## License
 
