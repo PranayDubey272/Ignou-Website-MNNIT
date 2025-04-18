@@ -22,6 +22,10 @@ The MNNIT IGNOU Study Center Website is a web application designed to facilitate
 - **Assignment Management**: Administrators can view and manage submitted assignments, providing feedback or grades if necessary.
 - **User Management**: Administrators have the ability to manage student accounts, ensuring proper access control and data privacy.
 
+- ### For Office Staff
+- **Attendance Record**: Staff can generate attendance record of students and get CSV/PDF report of it.
+- **Assignment Record**: Staff can view and generate Assignment record of students and get CSV/PDF report of it.
+
 ## Technologies Used
 
 - **Front-end**: React.js, Material-UI
