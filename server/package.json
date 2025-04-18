@@ -9,7 +9,7 @@
     "start": "node server",
     "dev": "nodemon server"
   },
-  "author": "bikash",
+  "author": "pranay",
   "license": "ISC",
   "dependencies": {
     "@pinata/sdk": "^2.1.0",

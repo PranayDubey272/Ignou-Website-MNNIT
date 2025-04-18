@@ -42,7 +42,16 @@ export const verifyAdmin = async (req, res) => {
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
- 
+
+export const verifyStaff = async (req, res) => {
+  try {
+    // just returning a success response, assuming user is already verified via middleware
+    return res.status(200).json({ success: true, message: "Staff verified" });
+  } catch (err) {
+    console.error("verifyStaff error:", err);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
 
 // forget password controller
 export const forgotPassword = async (req, res) => {

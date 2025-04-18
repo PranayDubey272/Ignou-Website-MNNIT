@@ -8,6 +8,7 @@ import AnnouncementPage from "./common/AnnouncementPage.jsx";
 import UserDetails from "./components/Users/UserDetails.jsx";
 import LoginPage from "./common/LoginPage.jsx";
 import Admin from "./pages/Admin.jsx";
+import Staff from  "./pages/OfficeStaff.jsx"
 import Users from "./pages/Users.jsx";
 import { Provider } from "./context/context.jsx";
 import ResetPasswordPage from "./common/resetPassword";
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: "/Admin",
     element: <Admin></Admin>,
+  },
+  {
+    path: "/Staff",
+    element: <Staff></Staff>
   },
   {
     path: "/LoginPage",
@@ -40,6 +45,7 @@ const router = createBrowserRouter([
     path: "/reset-password/:token", // Add this line for reset password route
     element: <ResetPasswordPage></ResetPasswordPage>, // Assuming you have a ResetPasswordPage component
   },
+
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

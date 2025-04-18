@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import handleLogoutOperations from "../util/utils";
 
+
 const useLoginHandler = (setRegistrationNo) => {
   const [loginError, setLoginError] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
@@ -12,10 +13,19 @@ const useLoginHandler = (setRegistrationNo) => {
     setRegistrationNo(registration);
     try {
       const response = await axios.post("http://localhost:3000/login", { registration, password });
+      console.log("response", response.data.token);
       if (response.data.success) {
-        localStorage.setItem("isLogedIn", true);
-        localStorage.setItem("token", response.data.token);
-        (response.data.role === "admin" || response.data.role === "office_staff")? navigate("/Admin") : navigate("/users", { state: { registrationno: registration } });
+        console.log("Storing token:", response.data.token);
+        localStorage.setItem("isLogedIn", true);  // Store login status
+        localStorage.setItem("token", response.data.token);  // Store the token
+        if (response.data.role === "admin") {
+
+          navigate("/Admin");
+        } else if (response.data.role === "office_staff") {
+            navigate("/Staff");
+        } else {
+            navigate("/users", { state: { registrationno: registration } });
+        }
       } else {
         handleLogoutOperations();
         setLoginError("Email or password is incorrect. Please try again.");

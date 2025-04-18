@@ -18,6 +18,7 @@ import handleLogoutOperations from "../util/utils.js";
 import AdminSidebar from "../sidebar/AdminSidebar.jsx";
 import AdminDashboard from "../components/Admin/AdminDashboard.jsx";
 
+
 const Admin = () => {
   const navigator = useNavigate();
   const [theme, colorMode] = useMode();
@@ -34,7 +35,6 @@ const Admin = () => {
 
         // Define the token (replace 'your-token' with the actual token)
         const token = localStorage.getItem("token");
-
         // Define the headers with the authorization token
         const headers = {
           Authorization: token,

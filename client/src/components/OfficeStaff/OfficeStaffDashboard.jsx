@@ -1,21 +1,13 @@
 import { Box, Button, useTheme } from "@mui/material";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
 import GroupsIcon from "@mui/icons-material/Groups";
-import ViewListIcon from "@mui/icons-material/ViewList";
 import CoPresentIcon from "@mui/icons-material/CoPresent";
-import AdminAnnouncementPage from "./AdminAnnouncementPage";
 import { tokens } from "../../ui/theme";
 import HeaderNew from "../../ui/Heading";
 import StatBox from "../../ui/StatBox";
 
-const AdminDashboard = ({ handlePage }) => {
+const OfficeStaffDashboard = ({ handlePage }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
-  const handleEmailClick = () => {
-    handlePage("Email");
-  };
 
   const handleStudentListClick = () => {
     handlePage("StudentList");
@@ -30,7 +22,7 @@ const AdminDashboard = ({ handlePage }) => {
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <HeaderNew
-          title="Welcome To Your Dashboard"
+          title="Welcome To Office Staff Dashboard"
           subtitle="MNNIT Allahabad Ignou Study Center"
         />
       </Box>
@@ -58,21 +50,7 @@ const AdminDashboard = ({ handlePage }) => {
           onClick={handleEmailClick}
           style={{ cursor: "pointer" }}
         >
-          <StatBox
-            title="Sent Email's"
-            subtitle=""
-            progress=""
-            increase=""
-            icon={
-              <EmailIcon
-                sx={{
-                  color: colors.greenAccent[600],
-                  fontSize: "35px",
-                  marginLeft: "30%",
-                }}
-              />
-            }
-          />
+    
         </Box>
         <Box
           gridColumn="span 3"
@@ -131,9 +109,8 @@ const AdminDashboard = ({ handlePage }) => {
         {/* ROW 2 */}
         <br />
       </Box>
-      <AdminAnnouncementPage></AdminAnnouncementPage>
     </Box>
   );
 };
 
-export default AdminDashboard;
+export default OfficeStaffDashboard;
