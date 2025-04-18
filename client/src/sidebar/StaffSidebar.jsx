@@ -7,7 +7,6 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import MessageIcon from "@mui/icons-material/Message";
 import CoPresentIcon from "@mui/icons-material/CoPresent";
 import { tokens } from "../ui/theme";
 
@@ -159,15 +158,7 @@ const StaffSidebar = ({ handlePage }) => {
               Services
             </Typography>
            
-            <Box onClick={() => handleClick("Message")}>
-              <Item
-                title="Message"
-                // to="/message"
-                icon={<MessageIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </Box>
+
            
             <Box onClick={() => handleClick("Attendance")}>
               <Item
@@ -183,28 +174,8 @@ const StaffSidebar = ({ handlePage }) => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Manipulate
             </Typography>
           
-           
-            {/*<Box onClick={() => handleClick("CIT")}>
-              <Item
-                title="CIT"
-                // to="/cit"
-                icon={<NotesIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </Box>
-            <Box onClick={() => handleClick("PGDCA")}>
-              <Item
-                title="PGDCA"
-                // to="/pgdca"
-                icon={<DvrIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </Box> */}
           </Box>
         </Menu>
       </ProSidebar>

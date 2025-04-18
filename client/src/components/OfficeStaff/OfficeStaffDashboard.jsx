@@ -37,21 +37,6 @@ const OfficeStaffDashboard = ({ handlePage }) => {
         alignItems="center"
         justifyContent="center"
       >
-        {/* ROW 1 */}
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="center"
-          sx={{ p: 4 }}
-          borderRadius={"10px"}
-          onClick={handleEmailClick}
-          style={{ cursor: "pointer" }}
-        >
-    
-        </Box>
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}

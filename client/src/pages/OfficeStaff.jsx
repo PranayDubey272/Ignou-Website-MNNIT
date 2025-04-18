@@ -9,8 +9,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import handleLogoutOperations from "../util/utils.js";
-import AdminSidebar from "../sidebar/AdminSidebar.jsx";
-import AdminDashboard from "../components/Admin/AdminDashboard.jsx";
+import StaffSidebar from "../sidebar/StaffSidebar.jsx";
+import OfficeStaffDashboard from "../components/OfficeStaff/OfficeStaffDashboard.jsx";
 
 const Staff = () => {
   const navigator = useNavigate();
@@ -72,10 +72,10 @@ const Staff = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-          <AdminSidebar isSidebar={isSidebar} handlePage={handlePage} />
+          <StaffSidebar isSidebar={isSidebar} handlePage={handlePage} />
           <main className="content">
             <Topbar setIsSidebar={setIsSidebar} />
-            {page === "Dashboard" && <AdminDashboard handlePage={handlePage} />}
+            {page === "Dashboard" && <OfficeStaffDashboard handlePage={handlePage} />}
             {page === "StudentList" && <StudentsList></StudentsList>}
             {page === "Assignment" && <AssignmentList></AssignmentList>}
             {page === "Attendance" && <AttendanceSheet></AttendanceSheet>}
