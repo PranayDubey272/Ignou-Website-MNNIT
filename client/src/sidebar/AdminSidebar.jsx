@@ -140,21 +140,28 @@ const AdminSidebar = ({ handlePage }) => {
             <Box onClick={() => handleClick("StudentList")}>
               <Item
                 title="Student List"
-                // to="/"
                 icon={<PeopleOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />
             </Box>
+            <Box onClick={() => handleClick("AddAssignment")}>
+            <Item
+              title="Add Assignment"
+              icon={<AssignmentIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          </Box>
             <Box onClick={() => handleClick("Assignment")}>
               <Item
                 title="Assignment"
-                // to="/"
                 icon={<AssignmentIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />
             </Box>
+
             <Box onClick={() => handleClick("ImportExcel")}>
               <Item
                 title="Import Excel"

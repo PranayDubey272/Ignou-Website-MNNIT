@@ -17,7 +17,7 @@ import axios from "axios";
 import handleLogoutOperations from "../util/utils.js";
 import AdminSidebar from "../sidebar/AdminSidebar.jsx";
 import AdminDashboard from "../components/Admin/AdminDashboard.jsx";
-
+import AddAssignment from "../components/Admin/AddAssignment.jsx";
 
 const Admin = () => {
   const navigator = useNavigate();
@@ -84,6 +84,7 @@ const Admin = () => {
             {page === "Dashboard" && <AdminDashboard handlePage={handlePage} />}
             {page === "StudentList" && <StudentsList></StudentsList>}
             {page === "Assignment" && <AssignmentList></AssignmentList>}
+            {page === "AddAssignment" && <AddAssignment></AddAssignment>}
             {page === "ImportExcel" && <ImportStudentData></ImportStudentData>}
             {page === "Email" && <SendEmailsButton></SendEmailsButton>}
             {page === "Message" && <AdminMessageForm></AdminMessageForm>}
