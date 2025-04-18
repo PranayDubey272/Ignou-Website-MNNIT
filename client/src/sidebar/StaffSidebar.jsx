@@ -163,7 +163,6 @@ const StaffSidebar = ({ handlePage }) => {
             <Box onClick={() => handleClick("Attendance")}>
               <Item
                 title="Attendance Sheet"
-                // to="/announcement"
                 icon={<CoPresentIcon />}
                 selected={selected}
                 setSelected={setSelected}
