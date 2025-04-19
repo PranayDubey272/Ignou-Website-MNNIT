@@ -1,160 +1,97 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Box,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useUserContext } from "../../context/context";
+import "react-toastify/dist/ReactToastify.css";
 
-const AssignmentForm = () => {
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const [file, setFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [fileName, setFileName] = useState("No image selected");
-  const [fileUrl, setFileUrl] = useState("");
-  const fileInputRef = useRef(null);
-
+const AssignmentOverview = () => {
   const { registrationno } = useUserContext();
+  const [courses, setCourses] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/courses?registrationno=${registrationno}`
+          `http://localhost:3000/assignments/student?registrationno=${registrationno}`
         );
-        setCourses(response.data);
+        // Extract unique courses from the response data
+        const uniqueCourses = [
+          ...new Set(response.data.map((assignment) => assignment.course_name)),
+        ];
+        setCourses(uniqueCourses);
       } catch (error) {
-        toast.error("Error fetching courses. Please try again later.");
+        toast.error("Failed to load courses.");
       }
     };
+
     fetchCourses();
   }, [registrationno]);
 
-  const handleCourseChange = (event) => {
-    setSelectedCourse(event.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    if (file) {
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const resFile = await axios({
-          method: "post",
-          url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-          data: formData,
-          headers: {
-            pinata_api_key: `91f013fa4929ab908af2`,
-            pinata_secret_api_key: `918c20b6d1338f77fb5844b2d001fbccdb9a1188a85c5bb9bee4d0f28794e8de`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        const ImgHash =
-          "https://gateway.pinata.cloud/ipfs/" + resFile.data.IpfsHash;
-        setFileUrl(ImgHash);
-
-        try {
-          const fileData = {
-            selectedCourse: selectedCourse,
-            ImgHash: ImgHash,
-          };
-          const response = await axios.post(
-            `http://localhost:3000/assignments?registrationno=${registrationno}`,
-            fileData
-          );
-          toast.success("Assignment submitted successfully!");
-          resetForm();
-        } catch (error) {
-          toast.error("Error submitting assignment. Please try again.");
-        }
-      } catch (e) {
-        toast.error("Unable to upload image to Pinata");
-      }
-    } else {
-      toast.error("Please select a file to upload.");
-    }
-
-    setIsLoading(false);
-  };
-
-  const handleFileChange = (e) => {
-    const data = e.target.files[0];
-    const reader = new window.FileReader();
-    reader.readAsArrayBuffer(data);
-    reader.onloadend = () => {
-      setFile(e.target.files[0]);
-    };
-    setFileName(e.target.files[0].name);
-    e.preventDefault();
-  };
-
-  const resetForm = () => {
-    setSelectedCourse("");
-    setFile(null);
-    setFileName("No files selected");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const fetchAssignments = async (course) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/assignments/student?registrationno=${registrationno}&course=${course}`
+      );
+      setAssignments(response.data);
+      setSelectedCourse(course);
+    } catch (error) {
+      toast.error("Failed to load assignments.");
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        mt: 10,
-        boxShadow: 2,
-        p: 4,
-        borderRadius: 2,
-        justifyContent: "center",
-      }}
-    >
-      <Typography variant="h5" gutterBottom>
-        Submit Your Assignment
+    <Box sx={{ mt: 4, px: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Your Courses
       </Typography>
-      <TextField
-        value={selectedCourse || "Select a course"}
-        select
-        onChange={handleCourseChange}
-        sx={{ mb: 2, width: 300 }}
-      >
-        <MenuItem value="">Select a course</MenuItem>
-        {courses.map((course, index) => (
-          <MenuItem key={index} value={course}>
-            {course}
-          </MenuItem>
-        ))}
-      </TextField>
-      <input
-        type="file"
-        ref={fileInputRef}
-        id="file-upload"
-        name="data"
-        onChange={handleFileChange}
-      />
-      <Button
-        variant="contained"
-        onClick={handleSubmit}
-        disabled={!selectedCourse || !file || isLoading}
-        sx={{ mt: 2, color: "secondary.main", width: "fit-content" }}
-      >
-        {isLoading ? <CircularProgress size={24} /> : "Submit"}
-      </Button>
+      {courses.length === 0 ? (
+        <Typography>No courses found.</Typography>
+      ) : (
+        <List>
+          {courses.map((course) => (
+            <ListItem button key={course} onClick={() => fetchAssignments(course)}>
+              <ListItemText primary={course} />
+            </ListItem>
+          ))}
+        </List>
+      )}
+
+      {selectedCourse && (
+        <>
+          <Typography variant="h5" sx={{ mt: 4 }} gutterBottom>
+            Assignments for {selectedCourse}
+          </Typography>
+          {assignments.length === 0 ? (
+            <Typography>No assignments found for this course.</Typography>
+          ) : (
+            <List>
+              {assignments.map((assignment) => (
+                <ListItem key={assignment.id}>
+                  <ListItemText
+                    primary={assignment.assignment_name}
+                    secondary={`Deadline: ${new Date(assignment.deadline).toLocaleString()}`}
+                  />
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    href={`http://localhost:3000/${assignment.file_path}`} // Make sure this matches the static file serving path
+                    target="_blank"
+                  >
+                    Download
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </>
+      )}
+
       <ToastContainer />
     </Box>
   );
 };
 
-export default AssignmentForm;
+export default AssignmentOverview;

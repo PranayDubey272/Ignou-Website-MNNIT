@@ -10,6 +10,7 @@ const useLoginHandler = (setRegistrationNo) => {
   const navigate = useNavigate();
 
   const handleLogin = async (registration, password) => {
+    console.log("handleLogin" , registration);
     setRegistrationNo(registration);
     try {
       const response = await axios.post("http://localhost:3000/login", { registration, password });

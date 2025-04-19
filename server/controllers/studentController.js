@@ -66,8 +66,8 @@ export const getStudentProfile = async (req, res) => {
       res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
-    console.error("Error fetching user details:", error);
-    res.status(500).json({ error: "Internal server error" });
+    // console.error("Error fetching user details:", error);
+    // res.status(500).json({ error: "Internal server error" });
   }
 };
 

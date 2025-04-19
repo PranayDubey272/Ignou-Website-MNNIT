@@ -157,7 +157,8 @@ const AddAssignment = () => {
             variant="outlined"
             name="session"
             fullWidth
-            value={assignmentData.session}
+            value={assignmentData.session}sudo systemctl status isc-dhcp-server6
+
             onChange={handleChange}
             margin="normal"
           />

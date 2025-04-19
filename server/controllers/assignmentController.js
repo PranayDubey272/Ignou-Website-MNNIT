@@ -93,3 +93,48 @@ export const handleAssignmentSubmission = async (req, res) => {
     res.status(500).json({ error: "Error submitting assignment." });
   }
 };
+
+export const getAssignmentsForStudent = async (req, res) => {
+  const { registrationno } = req.query;
+
+  if (!registrationno) {
+    return res.status(400).json({ message: "Registration number is required." });
+  }
+
+  try {
+    const userQuery = `SELECT courses FROM users WHERE registrationno = $1`;
+    const userResult = await db.query(userQuery, [registrationno]);
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: "Student not found." });
+    }
+
+    let courses = userResult.rows[0].courses;
+
+    // If courses is a string, convert it into an array (e.g., "mca" becomes ["mca"])
+    let coursesArray;
+    try {
+      coursesArray = JSON.parse(courses); // Try parsing as JSON
+    } catch (err) {
+      coursesArray = [courses]; // If not JSON, assume it's a single course, e.g., "mca"
+    }
+
+    console.log("Student Courses:", coursesArray);
+
+    // Proceed only if coursesArray is not empty
+    if (!Array.isArray(coursesArray) || coursesArray.length === 0) {
+      return res.json([]); // No courses, return empty list
+    }
+
+    // Query assignments based on courses
+    const assignmentsQuery = `SELECT * FROM assignments WHERE course_name = ANY($1::text[])`;
+    const assignmentsResult = await db.query(assignmentsQuery, [coursesArray]);
+
+    return res.json(assignmentsResult.rows);
+  } catch (error) {
+    console.error("Error fetching assignments:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+

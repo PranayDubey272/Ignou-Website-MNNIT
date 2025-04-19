@@ -16,7 +16,7 @@ const StudentDashboard = ({ handlePage, registrationno }) => {
           subtitle="MNNIT Allahabad Ignou Study Center"
         />
       </Box>
-      <AssignmentForm registrationno={registrationno}></AssignmentForm>
+      {/* <AssignmentForm registrationno={registrationno}></AssignmentForm> */}
     </Box>
   );
 };

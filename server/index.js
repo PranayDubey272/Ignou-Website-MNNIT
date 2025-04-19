@@ -1,4 +1,4 @@
-import express, { query } from "express";
+import express from "express";
 import cors from "cors";
 import env from "dotenv";
 import messageRoutes from "./routes/messageRoutes.js";
@@ -10,10 +10,14 @@ import courseRoutes from "./routes/courseRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import excelRoutes from "./routes/excelRoutes.js";
+import submissionRoutes from "./routes/submissionRoutes.js";
 import db from "./database.js";
+import path from "path";
 
 const app = express();
 const port = process.env.BACKEND_PORT;
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
 env.config();
 
 // Middleware
@@ -33,6 +37,8 @@ app.use("/", emailRoutes);
 app.use("/", excelRoutes);
 app.use("/courses", courseRoutes);
 app.use("/assignments", assignmentRoutes);
+app.use("/submissions", submissionRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));  // Fix: Use __dirname
 app.use("/", studentRoutes);
 
 app.get("/", async (req, res) => {

@@ -3,8 +3,11 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { handleAssignmentAddition } from "../controllers/assignmentController.js";
+import { getAssignmentsForStudent } from "../controllers/assignmentController.js";
 
 const router = express.Router();
+
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -27,5 +30,9 @@ const upload = multer({
 });
 
 router.post("/add-assignment", upload.single("assignmentFile"), handleAssignmentAddition);
+
+
+// Fetch assignments for a student based on their courses
+router.get("/student", getAssignmentsForStudent);
 
 export default router;
