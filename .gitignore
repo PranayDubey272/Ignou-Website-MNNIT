@@ -128,3 +128,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+/home/pranay/Documents/Miniproject/Ignou-Wesbite-MNNIT/server/uploads
