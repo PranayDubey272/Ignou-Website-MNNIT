@@ -44,24 +44,37 @@ const AddAssignment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("inside handleSubmit");
     const { name, programme, course_name, year, session, file } = assignmentData;
     if (!name || !programme || !course_name || !year || !session || !file) {
       alert("Please fill all fields and upload a valid file.");
       return;
     }
-
+    
     const formData = new FormData();
-    Object.entries(assignmentData).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+    console.log("inside form data");
+    console.log(file);
 
+    formData.append("assignmentFile", file); // must match the backend field name!
+    formData.append("programme", programme);
+    formData.append("course_name", course_name);
+    formData.append("year", year);
+    formData.append("session", session);
+  
     try {
-      await axios.post("http://localhost:3000/add-assignment", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+      // Send assignmentName as header
+    console.log("inside try");
+    console.log(name);
+
+      await axios.post("http://localhost:3000/assignments/submit", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "assignmentname": name, // Send assignment name in headers
+        }
       });
       alert("Assignment uploaded successfully!");
-
+  
+      // Clear form data after successful submission
       setAssignmentData({
         name: "",
         programme: "",
@@ -75,6 +88,8 @@ const AddAssignment = () => {
       alert("Failed to upload assignment.");
     }
   };
+  
+
 
   return (
     <Box
