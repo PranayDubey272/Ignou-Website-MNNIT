@@ -9,10 +9,11 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const { assignmentname } = req.body;  // Students send assignmentName in body!
-    if (!assignmentname) return cb(new Error("Missing assignment name in form data!"), null);
-    
-    const dir = `uploads/submissions/${assignmentname}`;
+    const { assignmentName } = req.body;  // Correct camelCase
+
+    if (!assignmentName) return cb(new Error("Missing assignment name in form data!"), null);
+
+    const dir = `uploads/submissions/${assignmentName}`;
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },

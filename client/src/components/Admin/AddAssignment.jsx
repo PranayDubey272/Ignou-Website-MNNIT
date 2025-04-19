@@ -9,8 +9,10 @@ const AddAssignment = () => {
     course_name: "",
     year: "",
     session: "",
+    deadline: "",
     file: null,
   });
+  
 
   const allowedFileTypes = [
     "application/pdf",
@@ -45,36 +47,37 @@ const AddAssignment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("inside handleSubmit");
-    const { name, programme, course_name, year, session, file } = assignmentData;
-    if (!name || !programme || !course_name || !year || !session || !file) {
-      alert("Please fill all fields and upload a valid file.");
+  
+    const { name, programme, course_name, year, session, file, deadline } = assignmentData;
+  
+    if (!name || !programme || !course_name || !year || !session || !file || !deadline) {
+      alert("Please fill all fields including deadline and upload a valid file.");
       return;
     }
-    
+  
     const formData = new FormData();
     console.log("inside form data");
-    console.log(file);
-
-    formData.append("assignmentFile", file); // must match the backend field name!
+  
+    formData.append("assignmentFile", file);  // This matches your backend expectation!
+    formData.append("assignmentName", name);
     formData.append("programme", programme);
-    formData.append("course_name", course_name);
+    formData.append("courseName", course_name);
     formData.append("year", year);
     formData.append("session", session);
+    formData.append("deadline", deadline);
   
     try {
-      // Send assignmentName as header
-    console.log("inside try");
-    console.log(name);
-
-      await axios.post("http://localhost:3000/assignments/submit", formData, {
+      console.log("inside try");
+  
+      await axios.post("http://localhost:3000/assignments/add-assignment", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          "assignmentname": name, // Send assignment name in headers
+          "assignmentname": assignmentData.name
         }
       });
-      alert("Assignment uploaded successfully!");
   
-      // Clear form data after successful submission
+      alert("Assignment added successfully!");
+  
       setAssignmentData({
         name: "",
         programme: "",
@@ -82,12 +85,14 @@ const AddAssignment = () => {
         year: "",
         session: "",
         file: null,
+        deadline: ""
       });
     } catch (error) {
       console.error(error);
-      alert("Failed to upload assignment.");
+      alert("Failed to add assignment.");
     }
   };
+  
   
 
 
@@ -150,11 +155,22 @@ const AddAssignment = () => {
           onChange={handleChange}
           margin="normal"
         />
+        <TextField
+          label="Deadline (YYYY-MM-DD)"
+          variant="outlined"
+          name="deadline"
+          fullWidth
+          value={assignmentData.deadline}
+          onChange={handleChange}
+          margin="normal"
+        />
+
         <Button
           variant="outlined"
           component="label"
           sx={{ mt: 2, mb: 2 }}
           fullWidth
+          color="secondary"
         >
           Upload Assignment File
           <input
@@ -166,7 +182,7 @@ const AddAssignment = () => {
         </Button>
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
           type="submit"
           fullWidth
         >
