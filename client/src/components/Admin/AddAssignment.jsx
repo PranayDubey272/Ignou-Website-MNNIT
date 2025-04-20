@@ -53,7 +53,6 @@ const AddAssignment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("inside handleSubmit");
 
     const { name, programme, course_name, year, session, file, deadline } = assignmentData;
 
@@ -63,7 +62,6 @@ const AddAssignment = () => {
     }
 
     const formData = new FormData();
-    console.log("inside form data");
 
     formData.append("assignmentFile", file);
     formData.append("assignmentName", name);
@@ -75,7 +73,7 @@ const AddAssignment = () => {
     formData.append("deadline", format(deadline, "yyyy-MM-dd"));
 
     try {
-      console.log("inside try");
+      ("inside try");
 
       await axios.post("http://localhost:3000/assignments/add-assignment", formData, {
         headers: {

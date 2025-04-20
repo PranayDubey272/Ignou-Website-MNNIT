@@ -3,7 +3,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { handleAssignmentAddition } from "../controllers/assignmentController.js";
-import { getAssignmentsForStudent } from "../controllers/assignmentController.js";
+import { getAssignmentsForStudent, getAllSubmittedAssignments } from "../controllers/assignmentController.js";
 
 const router = express.Router();
 
@@ -34,5 +34,8 @@ router.post("/add-assignment", upload.single("assignmentFile"), handleAssignment
 
 // Fetch assignments for a student based on their courses
 router.get("/student", getAssignmentsForStudent);
+
+router.get("/assignmentlist", getAllSubmittedAssignments)
+
 
 export default router;

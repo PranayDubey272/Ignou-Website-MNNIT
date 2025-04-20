@@ -78,6 +78,7 @@ const AssignmentList = () => {
         "http://localhost:3000/assignmentlist"
       )
       .then((response) => {
+        console.log("res", response);
         setData(response.data);
         setPdfColumns([
           ...columns.filter((column) => column.field !== "file_path"),
@@ -86,7 +87,7 @@ const AssignmentList = () => {
         ]);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error.response?.data);
       });
   }, []);
 

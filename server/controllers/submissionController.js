@@ -18,11 +18,11 @@ export const handleAssignmentSubmission = async (req, res) => {
       return res.status(400).json({ error: "Assignment already submitted!" });
     }
 
-    // Insert submission record
     await pool.query(
-      "INSERT INTO submissions (assignment_id, registrationno, file_path) VALUES ($1, $2, $3)",
-      [assignmentid, registrationno, req.file.path]
-    );
+        "INSERT INTO submissions (assignment_id, registrationno, file_path) VALUES ($1, $2, $3)",
+        [assignmentid, registrationno, req.file.path]
+      );
+       
 
     res.status(200).json({ message: "Assignment submitted successfully!" });
 

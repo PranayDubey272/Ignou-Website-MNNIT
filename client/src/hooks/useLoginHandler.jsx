@@ -10,13 +10,10 @@ const useLoginHandler = (setRegistrationNo) => {
   const navigate = useNavigate();
 
   const handleLogin = async (registration, password) => {
-    console.log("handleLogin" , registration);
     setRegistrationNo(registration);
     try {
       const response = await axios.post("http://localhost:3000/login", { registration, password });
-      console.log("response", response.data.token);
       if (response.data.success) {
-        console.log("Storing token:", response.data.token);
         localStorage.setItem("isLogedIn", true);  // Store login status
         localStorage.setItem("token", response.data.token);  // Store the token
         if (response.data.role === "admin") {

@@ -16,7 +16,7 @@ const AnnouncementBanner = () => {
         );
         setAnnouncement(response.data);
       } catch (error) {
-        console.error("Error fetching announcement:", error);
+        console.error("Error fetching announcement:", errerror.response?.data);
       }
     };
     fetchAnnouncement();

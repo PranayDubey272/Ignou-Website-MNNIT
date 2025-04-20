@@ -42,9 +42,47 @@ const AssignmentOverview = () => {
     }
   };
 
-  const handleFileSelect = async ()=>{
-    
-  }
+  const handleFileSelect = async (assignmentId) => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+  
+    fileInput.onchange = async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+  
+      const confirmUpload = window.confirm(`Are you sure you want to submit "${file.name}"?`);
+      if (!confirmUpload) {
+        toast.info("Submission cancelled.");
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append('assignmentFile', file);
+  
+      try {
+        await axios.post("http://localhost:3000/submissions/submit-assignment", formData, {
+          headers: {
+            "assignmentid": assignmentId,
+            "registrationno": registrationno
+          },
+        });
+        toast.success("Assignment submitted successfully!");
+      } catch (error) {
+        if(error.response?.data.error == "Assignment already submitted!"){
+          toast.success("You have already submitted the assignment");
+        }
+        else{
+          toast.error("Failed to submit assignment.");
+        }
+      }
+    };
+  
+    fileInput.click();
+  };
+  
+  
+  
+  
 
   return (
     <Box sx={{ mt: 4, px: 4 }}>
@@ -89,6 +127,7 @@ const AssignmentOverview = () => {
                   <Button
                     variant="outlined"
                     color="secondary"
+                    
                     onClick={() => handleFileSelect(assignment.id)} // The submission route goes here
                     target="_blank"
                   >

@@ -35,12 +35,14 @@ export const getAssignmentList = async (req, res) => {
         s.programme,
         s.session,
         s.year,
-        sub.course_name,
+        a.course_name,
+        a.assignment_name,
         sub.submitted_at,
         sub.file_path
       FROM
         users s
         LEFT JOIN submissions sub ON s.registrationno = sub.registrationno
+        LEFT JOIN assignments a ON sub.assignment_id = a.id
       WHERE 
         s.role = 'user'
     `;
@@ -66,8 +68,8 @@ export const getStudentProfile = async (req, res) => {
       res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
-    // console.error("Error fetching user details:", error);
-    // res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -77,9 +79,14 @@ export const getStudentSubmissionsList = async (req, res) => {
   try {
     const result = await db.query(
       `
-        SELECT s.course_name, s.submitted_at, s.file_path
+        SELECT 
+          a.course_name, 
+          a.assignment_name,
+          s.submitted_at, 
+          s.file_path
         FROM submissions s
         JOIN users st ON s.registrationno = st.registrationno
+        LEFT JOIN assignments a ON s.assignment_id = a.id
         WHERE st.registrationno = $1
         ORDER BY s.submitted_at DESC;
       `,

@@ -9,11 +9,7 @@ export const handleAssignmentAddition = async (req, res) => {
     const { courseName, assignmentName, deadline } = req.body;
 
     if (!courseName || !assignmentName || !deadline || !req.file) {
-      if (!courseName) console.log("missing course name");
-      if (!assignmentName) console.log("missing assignment name");
-      if (!deadline) console.log("missing deadline");
       if (!req.file) console.log("missing file");
-
       return res.status(400).json({ error: "Missing required fields or file." });
     }
 
@@ -137,4 +133,14 @@ export const getAssignmentsForStudent = async (req, res) => {
   }
 };
 
-
+export const getAllSubmittedAssignments = async(req, res) =>{
+  try{
+    const query = `SELECT * FROM assignments`;
+    const result = await db.query(query);
+    return res.json(query);
+  }
+  catch(error){
+    console.log("Error fetching all assignments", error.response?.data);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
