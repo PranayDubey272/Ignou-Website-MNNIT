@@ -42,6 +42,10 @@ const AssignmentOverview = () => {
     }
   };
 
+  const handleFileSelect = async ()=>{
+    
+  }
+
   return (
     <Box sx={{ mt: 4, px: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -81,6 +85,14 @@ const AssignmentOverview = () => {
                     target="_blank"
                   >
                     Download
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => handleFileSelect(assignment.id)} // The submission route goes here
+                    target="_blank"
+                  >
+                    Submit
                   </Button>
                 </ListItem>
               ))}
