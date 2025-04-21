@@ -72,14 +72,20 @@ const AssignmentList = () => {
   const csvData = data.map((row) => columns.map((column) => row[column.field]));
   const headers = columns.map((column) => column.headerName);
 
+
+  const [uniqueCourses, setUniqueCourses] = useState([]);
+
+  // In your useEffect where you fetch the data:
   useEffect(() => {
     axios
-      .get(
-        "http://localhost:3000/assignmentlist"
-      )
+      .get("http://localhost:3000/assignmentlist")
       .then((response) => {
         console.log("res", response);
         setData(response.data);
+        const courses = Array.from(
+          new Set(response.data.map((item) => item.course_name).filter(Boolean))
+        );
+        setUniqueCourses(courses);
         setPdfColumns([
           ...columns.filter((column) => column.field !== "file_path"),
           { field: "session", headerName: "Session" },
@@ -90,6 +96,7 @@ const AssignmentList = () => {
         console.error("Error fetching data:", error.response?.data);
       });
   }, []);
+
 
   const downloadFile = (filePath) => {
     // console.log(filePath);
@@ -237,11 +244,17 @@ const AssignmentList = () => {
         </Box>
         <Box mr={2}>
           <label>Course:</label>
-          <input
-            type="text"
+          <select
             value={courseFilter}
             onChange={handleCourseFilterChange}
-          />
+          >
+            <option value="">All</option>
+            {uniqueCourses.map((course) => (
+              <option key={course} value={course}>
+                {course}
+              </option>
+            ))}
+          </select>
         </Box>
         <Box mr={2}>
           <label>Session:</label>

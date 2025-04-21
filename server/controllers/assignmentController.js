@@ -91,7 +91,7 @@ export const handleAssignmentSubmission = async (req, res) => {
 };
 
 export const getAssignmentsForStudent = async (req, res) => {
-  const { registrationno } = req.query;
+  const { registrationno, course } = req.query;
 
   if (!registrationno) {
     return res.status(400).json({ message: "Registration number is required." });
@@ -120,20 +120,36 @@ export const getAssignmentsForStudent = async (req, res) => {
       return res.json([]); // No courses
     }
 
-    const assignmentsQuery = `
-      SELECT a.* FROM assignments a
-      LEFT JOIN submissions s 
-      ON a.id = s.assignment_id AND s.registrationno = $2
-      WHERE a.course_name = ANY($1::text[]) AND s.submission_id IS NULL;
-    `;
+    let assignmentsQuery;
+    let assignmentsResult;
 
-    const assignmentsResult = await db.query(assignmentsQuery, [coursesArray, registrationno]);
+    if (course) {
+      // Filter by selected course
+      assignmentsQuery = `
+        SELECT a.* FROM assignments a
+        LEFT JOIN submissions s 
+        ON a.id = s.assignment_id AND s.registrationno = $2
+        WHERE a.course_name = $1 AND s.submission_id IS NULL;
+      `;
+      assignmentsResult = await db.query(assignmentsQuery, [course, registrationno]);
+    } else {
+      // Fetch all courses if course param is not sent
+      assignmentsQuery = `
+        SELECT a.* FROM assignments a
+        LEFT JOIN submissions s 
+        ON a.id = s.assignment_id AND s.registrationno = $2
+        WHERE a.course_name = ANY($1::text[]) AND s.submission_id IS NULL;
+      `;
+      assignmentsResult = await db.query(assignmentsQuery, [coursesArray, registrationno]);
+    }
+
     return res.json(assignmentsResult.rows);
   } catch (error) {
     console.error("Error fetching assignments:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 export const getAllSubmittedAssignments = async(req, res) =>{
