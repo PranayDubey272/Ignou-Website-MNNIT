@@ -107,31 +107,34 @@ export const getAssignmentsForStudent = async (req, res) => {
 
     let courses = userResult.rows[0].courses;
 
-    // If courses is a string, convert it into an array (e.g., "mca" becomes ["mca"])
     let coursesArray;
     try {
-      coursesArray = JSON.parse(courses); // Try parsing as JSON
+      coursesArray = JSON.parse(courses);
     } catch (err) {
-      coursesArray = [courses]; // If not JSON, assume it's a single course, e.g., "mca"
+      coursesArray = [courses];
     }
 
-    console.log("Student Courses:", coursesArray);
+    // console.log("Student Courses:", coursesArray);
 
-    // Proceed only if coursesArray is not empty
     if (!Array.isArray(coursesArray) || coursesArray.length === 0) {
-      return res.json([]); // No courses, return empty list
+      return res.json([]); // No courses
     }
 
-    // Query assignments based on courses
-    const assignmentsQuery = `SELECT * FROM assignments WHERE course_name = ANY($1::text[])`;
-    const assignmentsResult = await db.query(assignmentsQuery, [coursesArray]);
+    const assignmentsQuery = `
+      SELECT a.* FROM assignments a
+      LEFT JOIN submissions s 
+      ON a.id = s.assignment_id AND s.registrationno = $2
+      WHERE a.course_name = ANY($1::text[]) AND s.submission_id IS NULL;
+    `;
 
+    const assignmentsResult = await db.query(assignmentsQuery, [coursesArray, registrationno]);
     return res.json(assignmentsResult.rows);
   } catch (error) {
     console.error("Error fetching assignments:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const getAllSubmittedAssignments = async(req, res) =>{
   try{

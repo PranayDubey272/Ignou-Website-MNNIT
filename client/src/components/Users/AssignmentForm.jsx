@@ -90,7 +90,7 @@ const AssignmentOverview = () => {
         Your Courses
       </Typography>
       {courses.length === 0 ? (
-        <Typography>No courses found.</Typography>
+        <Typography>Looks like you are all caught up!</Typography>
       ) : (
         <List>
           {courses.map((course) => (

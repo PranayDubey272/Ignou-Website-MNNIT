@@ -19,13 +19,33 @@ const SubmissionList = () => {
 
   const { registrationno } = useUserContext();
   const columns = [
+    {
+      field: "assignment_name",
+      headerName: "Assignment Name",
+      flex: 1,
+    },
     { field: "course_name", headerName: "Course", flex: 1 },
     {
       field: "submitted_at",
       headerName: "Submitted At",
       flex: 1,
-      renderCell: (params) =>
-        params.value ? params.value : <HorizontalRuleIcon size={24} />,
+      renderCell: (params) => {
+        // Check if date is available
+        const date = params.value ? new Date(params.value) : null;
+  
+        // Format date to a more readable format (e.g., MM/DD/YYYY HH:mm:ss)
+        return date
+          ? date.toLocaleString("en-US", {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+          : <HorizontalRuleIcon size={24} />;
+      },
     },
     {
       field: "file_path",
@@ -49,6 +69,7 @@ const SubmissionList = () => {
       ],
     },
   ];
+  
 
   const csvData = data.map((row) => columns.map((column) => row[column.field]));
   const headers = columns.map((column) => column.headerName);
@@ -56,21 +77,22 @@ const SubmissionList = () => {
   useEffect(() => {
     if (registrationno) {
       axios
-        .get(
-          `http://localhost:3000/studentsubmissionslist?registrationno=${registrationno}`
-        )
+        .get(`http://localhost:3000/studentsubmissionslist?registrationno=${registrationno}`)
         .then((response) => {
-          setData(response.data);
+          setData(response.data); // This ensures the state gets updated correctly
         })
         .catch((error) => {
           console.error("Error fetching data:", error);
         });
     }
   }, [registrationno]);
+  
 
   const downloadFile = (filePath) => {
-    saveAs(filePath);
-  };
+      // console.log(filePath);
+      const fullUrl = `http://localhost:3000/${filePath}`;
+      saveAs(fullUrl);
+    };
 
   return (
     <Box m="20px">
@@ -125,7 +147,8 @@ const SubmissionList = () => {
           rows={data}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          getRowId={(row) => row.course_name}
+          getRowId={(row) => `${row.course_name}-${row.assignment_name}-${row.submitted_at}-${row.file_path}`}
+
         />
       </Box>
     </Box>

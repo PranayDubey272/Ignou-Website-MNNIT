@@ -92,7 +92,9 @@ const AssignmentList = () => {
   }, []);
 
   const downloadFile = (filePath) => {
-    saveAs(filePath);
+    // console.log(filePath);
+    const fullUrl = `http://localhost:3000/${filePath}`;
+    saveAs(fullUrl);
   };
 
   const handleSemesterFilterChange = (event) => {

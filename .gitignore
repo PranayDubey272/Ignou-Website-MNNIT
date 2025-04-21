@@ -42,6 +42,10 @@ build/Release
 node_modules/
 jspm_packages/
 
+# upload folder
+server/uploads/
+
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
@@ -64,7 +68,7 @@ web_modules/
 .rts2_cache_umd/
 
 # Optional REPL history
-.node_repl_history
+.node_repl_historysub.course_name
 
 # Output of 'npm pack'
 *.tgz
@@ -130,3 +134,4 @@ dist
 .pnp.*
 
 /home/pranay/Documents/Miniproject/Ignou-Wesbite-MNNIT/server/uploads
+node_modules
