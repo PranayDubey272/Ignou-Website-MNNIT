@@ -161,6 +161,14 @@ const AdminSidebar = ({ handlePage }) => {
                 setSelected={setSelected}
               />
             </Box>
+            <Box onClick={() => handleClick("AssignmentReport")}>
+              <Item
+                title="Assignment Report"
+                icon={<AssignmentIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </Box>
 
             <Box onClick={() => handleClick("ImportExcel")}>
               <Item

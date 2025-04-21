@@ -6,7 +6,8 @@ import {
   getStudentSubmissionsList,
   getAttendanceSheet,
   getCoursesList,
-  updateGrade
+  updateGrade,
+  getStudentReport
 } from "../controllers/studentController.js";
 
 const router = express.Router();
@@ -18,4 +19,6 @@ router.get("/studentsprofile", getStudentProfile);
 router.get("/studentsubmissionslist", getStudentSubmissionsList);
 router.get("/attendancesheet", getAttendanceSheet);
 router.put("/update-grade", updateGrade);
+router.get("/student-report/:registrationno", getStudentReport);
+
 export default router;

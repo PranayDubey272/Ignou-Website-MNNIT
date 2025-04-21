@@ -1,4 +1,5 @@
 import db from "../database.js";
+import dayjs from "dayjs"; // for dates
 
 export const getStudentsList = async (req, res) => {
   try {
@@ -171,3 +172,80 @@ export const updateGrade = async (req, res) => {
     res.status(500).json({ error: 'Failed to update grade' });
   }
 };
+
+
+export const getStudentReport = async (req, res) => {
+  const { registrationno } = req.params;
+
+  try {
+    // Get the student's courses (as a JSON array)
+    const userResult = await db.query(
+      `SELECT courses FROM users WHERE registrationno = $1`,
+      [registrationno]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    const coursesString = userResult.rows[0].courses;
+    const courses = JSON.parse(coursesString); // Convert the JSON array to a JavaScript array
+
+    if (!Array.isArray(courses) || courses.length === 0) {
+      return res.status(400).json({ error: "No courses found for student" });
+    }
+
+    // Get all assignments for the student's courses (now comparing course names correctly)
+    const assignmentsResult = await db.query(
+      `SELECT * FROM assignments WHERE course_name = ANY($1::text[])`, // Match against the student's courses
+      [courses]
+    );
+
+    const assignments = assignmentsResult.rows;
+
+    const today = dayjs();
+    const report = [];
+
+    for (const assignment of assignments) {
+      // Check if submission exists
+      const submissionResult = await db.query(
+        `SELECT * FROM submissions 
+         WHERE registrationno = $1 AND assignment_id = $2 AND grade<>'NA'`,
+        [registrationno, assignment.id] // Ensure assignment_id is properly matched
+      );
+
+      const submission = submissionResult.rows[0];
+      const deadline = dayjs(assignment.deadline);
+
+      if (submission) {
+        // Student submitted, include actual submission
+        report.push({
+          assignment_name: assignment.assignment_name,
+          course_name: assignment.course_name,
+          submitted_at: submission.submitted_at,
+          file_path: submission.file_path,
+          grade: submission.grade || 'na',
+        });
+      } else if (today.isAfter(deadline)) {
+        // No submission and deadline passed → mark as F temporarily
+        report.push({
+          assignment_name: assignment.assignment_name,
+          course_name: assignment.course_name,
+          submitted_at: null,
+          file_path: null,
+          grade: 'F',
+        });
+      }
+    }
+
+    res.status(200).json(report);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error while generating report" });
+  }
+};
+
+
+
+
