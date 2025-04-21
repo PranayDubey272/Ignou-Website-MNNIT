@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -17,6 +17,8 @@ import jsPDF from "jspdf"; // <-- We use this for PDF
 import "jspdf-autotable";   // <-- For tables inside PDF
 import HeaderNew from "../../ui/Heading";
 import dayjs from "dayjs"; // <-- Import dayjs
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'; // <-- Import recharts components
+import html2canvas from 'html2canvas'; // <-- Import html2canvas
 
 const AssignmentReport = () => {
   const theme = useTheme();
@@ -25,6 +27,19 @@ const AssignmentReport = () => {
   const [studentData, setStudentData] = useState([]);
   const [searched, setSearched] = useState(false);
   const [overallGrade, setOverallGrade] = useState(null); // State to hold the overall grade
+  const chartRef = useRef(null); // Ref for capturing the chart as an image
+
+  // Grade map to convert letter grades to numeric values for Y-axis
+  const gradeMap = {
+    "A+": 4.3,
+    "A": 4.0,
+    "B+": 3.3,
+    "B": 3.0,
+    "C+": 2.3,
+    "C": 2.0,
+    "D": 1.0,
+    "F": 0,
+  };
 
   const downloadFile = (filePath) => {
     const fullUrl = `http://localhost:3000/${filePath}`;
@@ -32,27 +47,10 @@ const AssignmentReport = () => {
   };
 
   const calculateOverallGrade = (grades) => {
-    // Assuming grades are numeric or can be converted to numeric
-    const gradeMap = {
-        "A+": 4.3,
-        "A": 4.0,
-        "B+": 3.3,
-        "B": 3.0,
-        "C+": 2.3,
-        "C": 2.0,
-        "D": 1.0,
-        "F": 0,
-      };    
-
-    // Convert grades to numbers and calculate average
     const numericGrades = grades.map(grade => gradeMap[grade] || 0);
     const total = numericGrades.reduce((acc, grade) => acc + grade, 0);
     const average = total / numericGrades.length;
-    console.log('total',total);
-    console.log('avg',average);
-    console.log('numer',numericGrades.length);
 
-    // Return the average grade as a letter grade
     if (average >= 4.0) return "A+";
     if (average >= 3.7) return "A";
     if (average >= 3.3) return "B+";
@@ -68,17 +66,15 @@ const AssignmentReport = () => {
       const res = await axios.get(`http://localhost:3000/student-report/${registrationNo}`);
       console.log(res.data);
 
-      // Format the date using dayjs before setting the student data
       const formattedData = res.data.map((item, idx) => ({
         ...item,
         id: idx,
         submitted_at: item.submitted_at ? dayjs(item.submitted_at).format('YYYY-MM-DD HH:mm:ss') : 'N/A',
       }));
 
-      // Calculate the overall grade based on the fetched grades
       const grades = formattedData.map(item => item.grade);
       const overall = calculateOverallGrade(grades);
-      setOverallGrade(overall); // Set the overall grade
+      setOverallGrade(overall);
 
       setStudentData(formattedData);
       setSearched(true);
@@ -89,7 +85,6 @@ const AssignmentReport = () => {
 
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
-
     doc.setFontSize(18);
     doc.text(`Student Report: ${registrationNo}`, 14, 22);
 
@@ -115,7 +110,16 @@ const AssignmentReport = () => {
     doc.setFontSize(14);
     doc.text(`Overall Grade: ${overallGrade}`, 14, doc.autoTable.previous.finalY + 10);
 
-    doc.save(`${registrationNo}_report.pdf`);
+    // Capture chart as an image and add to PDF using html2canvas
+    if (chartRef.current) {
+      html2canvas(chartRef.current).then((canvas) => {
+        const dataUrl = canvas.toDataURL('image/png');
+        doc.addImage(dataUrl, 'PNG', 14, doc.autoTable.previous.finalY + 20, 180, 100);
+        doc.save(`${registrationNo}_report.pdf`);
+      });
+    } else {
+      doc.save(`${registrationNo}_report.pdf`);
+    }
   };
 
   const columns = [
@@ -136,6 +140,12 @@ const AssignmentReport = () => {
     },
     { field: "grade", headerName: "Grade", flex: 0.5 },
   ];
+
+  // Prepare data for line graph
+  const lineGraphData = studentData.map(item => ({
+    name: item.assignment_name,
+    grade: item.grade ? gradeMap[item.grade] : 0, // Convert grades to numeric values
+  }));
 
   return (
     <Box m="20px">
@@ -179,6 +189,26 @@ const AssignmentReport = () => {
       {searched && studentData.length > 0 && overallGrade && (
         <Box mt={2}>
           <Typography variant="h6">Overall Grade: {overallGrade}</Typography>
+        </Box>
+      )}
+
+      {/* Add the line graph to show performance over time */}
+      {searched && studentData.length > 0 && (
+        <Box mt={4} height={300} ref={chartRef}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={lineGraphData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis type="number" domain={[0, 4.3]} ticks={[0, 1, 2, 3, 4.3]} tickFormatter={(tick) => {
+                // Format numeric Y-axis to corresponding grades
+                const gradeLabels = ["F", "D", "C", "C+", "B", "B+", "A", "A+"];
+                return gradeLabels[Math.round(tick)];
+              }} />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="grade" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
         </Box>
       )}
     </Box>
