@@ -41,10 +41,10 @@ export const getAssignmentList = async (req, res) => {
         sub.file_path
       FROM
         users s
-        LEFT JOIN submissions sub ON s.registrationno = sub.registrationno
-        LEFT JOIN assignments a ON sub.assignment_id = a.id
+        INNER JOIN submissions sub ON s.registrationno = sub.registrationno
+        INNER JOIN assignments a ON sub.assignment_id = a.id
       WHERE 
-        s.role = 'user'
+        s.role = 'user';
     `;
     const { rows } = await db.query(query);
     res.json(rows);

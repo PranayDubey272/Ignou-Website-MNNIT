@@ -25,7 +25,9 @@ const AssignmentList = () => {
   const [courseFilter, setCourseFilter] = useState("");
   const [sessionFilter, setSessionFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
-
+  const [assignmentNameFilter, setAssignmentNameFilter] = useState("");
+  const [uniqueCourses, setUniqueCourses] = useState([]);
+  
   const columns = [
     { field: "registrationno", headerName: "Registration No.", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
@@ -34,18 +36,22 @@ const AssignmentList = () => {
       field: "course_name",
       headerName: "Courses",
       flex: 1,
-      renderCell: (params) =>
-        params.value ? params.value : <HorizontalRuleIcon />,
+      renderCell: (params) => params.value || <HorizontalRuleIcon />,
+    },
+    {
+      field: "assignment_name",
+      headerName: "Assignment",
+      flex: 1,
+      renderCell: (params) => params.value || <HorizontalRuleIcon />,
     },
     {
       field: "submitted_at",
       headerName: "Submitted At",
       flex: 1,
-      renderCell: (params) =>
-        params.value ? params.value : <HorizontalRuleIcon />,
+      renderCell: (params) => params.value || <HorizontalRuleIcon />,
     },
-    { field: "session", headerName: "Session", flex: 1 }, // Add this line
-    { field: "year", headerName: "Year", flex: 1 }, // Add this line
+    { field: "session", headerName: "Session", flex: 1 },
+    { field: "year", headerName: "Year", flex: 1 },
     {
       field: "file_path",
       headerName: "Download",
@@ -72,18 +78,19 @@ const AssignmentList = () => {
   const csvData = data.map((row) => columns.map((column) => row[column.field]));
   const headers = columns.map((column) => column.headerName);
 
-
-  const [uniqueCourses, setUniqueCourses] = useState([]);
-
-  // In your useEffect where you fetch the data:
+  // Fetch data and filter unique courses
   useEffect(() => {
     axios
       .get("http://localhost:3000/assignmentlist")
       .then((response) => {
-        console.log("res", response);
-        setData(response.data);
+        // Add a unique id to each row (e.g., based on index or a unique field like registrationno)
+        const dataWithIds = response.data.map((item, index) => ({
+          ...item,
+          id: item.registrationno || index, // Use registrationno as id, fallback to index
+        }));
+        setData(dataWithIds);
         const courses = Array.from(
-          new Set(response.data.map((item) => item.course_name).filter(Boolean))
+          new Set(dataWithIds.map((item) => item.course_name).filter(Boolean))
         );
         setUniqueCourses(courses);
         setPdfColumns([
@@ -97,42 +104,23 @@ const AssignmentList = () => {
       });
   }, []);
 
-
   const downloadFile = (filePath) => {
-    // console.log(filePath);
     const fullUrl = `http://localhost:3000/${filePath}`;
     saveAs(fullUrl);
   };
 
-  const handleSemesterFilterChange = (event) => {
-    setSemesterFilter(event.target.value);
-  };
-
-  const handleProgrammeFilterChange = (event) => {
-    setProgrammeFilter(event.target.value);
-  };
-
-  const handleSubmittedFilterChange = (event) => {
-    setSubmittedFilter(event.target.value);
+  const handleAssignmentNameFilterChange = (event) => {
+    setAssignmentNameFilter(event.target.value);
   };
 
   const handleCourseFilterChange = (event) => {
     setCourseFilter(event.target.value);
   };
 
-  const handleSessionFilterChange = (event) => {
-    setSessionFilter(event.target.value);
-  };
-
-  const handleYearFilterChange = (event) => {
-    setYearFilter(event.target.value);
-  };
-
   const filteredData = data.filter((row) => {
     const semesterMatch = !semesterFilter || row.semester === semesterFilter;
     const programmeMatch =
-      !programmeFilter ||
-      (row.programme && row.programme.toString().includes(programmeFilter));
+      !programmeFilter || (row.programme && row.programme.toString().includes(programmeFilter));
     const submittedMatch =
       submittedFilter === ""
         ? true
@@ -140,10 +128,11 @@ const AssignmentList = () => {
         ? row.submitted_at
         : !row.submitted_at;
     const courseMatch =
-      !courseFilter ||
-      (row.course_name && row.course_name.toString().includes(courseFilter));
+      !courseFilter || (row.course_name && row.course_name.toString().includes(courseFilter));
     const sessionMatch = !sessionFilter || row.session === sessionFilter;
     const yearMatch = !yearFilter || row.year === parseInt(yearFilter);
+    const assignmentMatch =
+      !assignmentNameFilter || (row.assignment_name && row.assignment_name.toLowerCase().includes(assignmentNameFilter.toLowerCase()));
 
     return (
       semesterMatch &&
@@ -151,17 +140,15 @@ const AssignmentList = () => {
       submittedMatch &&
       courseMatch &&
       sessionMatch &&
-      yearMatch
+      yearMatch &&
+      assignmentMatch
     );
   });
 
   const generateReport = () => {
     const doc = new jsPDF();
-    // Add logo (if available)
-    // You need to provide the logo image file path or data URL
-    const logoImageData = "/logo.png"; // Replace with the actual logo image file path or data URL
-    doc.addImage(logoImageData, "PNG", 10, 10, 30, 30); // Adjust the positioning and dimensions as needed
-    // Add header
+    const logoImageData = "/logo.png";
+    doc.addImage(logoImageData, "PNG", 10, 10, 30, 30);
     const headerText = "Indira Gandhi National Open University";
     doc.setFontSize(18);
     const headerWidth =
@@ -171,9 +158,7 @@ const AssignmentList = () => {
       headerText,
       (doc.internal.pageSize.getWidth() - headerWidth) / 2,
       20
-    ); // Align header to center
-
-    // Add subheading 1
+    );
     const subheading1Text = "Study Center MNNIT Allahabad";
     doc.setFontSize(14);
     const subheading1Width =
@@ -183,9 +168,7 @@ const AssignmentList = () => {
       subheading1Text,
       (doc.internal.pageSize.getWidth() - subheading1Width) / 2,
       30
-    ); // Align subheading 1 to center
-
-    // Add subheading 2
+    );
     const subheading2Text = "Assignments Report";
     doc.setFontSize(14);
     const subheading2Width =
@@ -195,9 +178,8 @@ const AssignmentList = () => {
       subheading2Text,
       (doc.internal.pageSize.getWidth() - subheading2Width) / 2,
       40
-    ); // Align subheading 2 to center
+    );
 
-    // Add table data
     const tableRows = filteredData.map((row) =>
       pdfColumns.map((column) => row[column.field])
     );
@@ -209,10 +191,9 @@ const AssignmentList = () => {
     doc.autoTable({
       head: [tableColumns.map((column) => column.header)],
       body: tableRows,
-      startY: 50, // Start the table a bit below the subheadings
+      startY: 50,
     });
 
-    // Add footer
     const footerText = "Page " + doc.internal.getNumberOfPages();
     const footerWidth =
       (doc.getStringUnitWidth(footerText) * doc.internal.getFontSize()) /
@@ -224,30 +205,24 @@ const AssignmentList = () => {
     );
     doc.save("assignments_report.pdf");
     setIsReportDownloaded(true);
-    setPdfColumns([]); // Reset pdfColumns to an empty array
+    setPdfColumns([]);
   };
 
   return (
     <Box m="20px">
-      <HeaderNew
-        title="Assignment List"
-        subtitle="List of Assignments for Future Reference"
-      />
+      <HeaderNew title="Assignment List" subtitle="List of Assignments for Future Reference" />
       <Box display="flex" alignItems="center" mb={2}>
         <Box mr={2}>
-          <label>Programme:</label>
+          <label>Assignment Name:</label>
           <input
             type="text"
-            value={programmeFilter}
-            onChange={handleProgrammeFilterChange}
+            value={assignmentNameFilter}
+            onChange={handleAssignmentNameFilterChange}
           />
         </Box>
         <Box mr={2}>
           <label>Course:</label>
-          <select
-            value={courseFilter}
-            onChange={handleCourseFilterChange}
-          >
+          <select value={courseFilter} onChange={handleCourseFilterChange}>
             <option value="">All</option>
             {uniqueCourses.map((course) => (
               <option key={course} value={course}>
@@ -257,11 +232,19 @@ const AssignmentList = () => {
           </select>
         </Box>
         <Box mr={2}>
+          <label>Programme:</label>
+          <input
+            type="text"
+            value={programmeFilter}
+            onChange={(e) => setProgrammeFilter(e.target.value)}
+          />
+        </Box>
+        <Box mr={2}>
           <label>Session:</label>
           <input
             type="text"
             value={sessionFilter}
-            onChange={handleSessionFilterChange}
+            onChange={(e) => setSessionFilter(e.target.value)}
           />
         </Box>
         <Box mr={2}>
@@ -269,14 +252,14 @@ const AssignmentList = () => {
           <input
             type="text"
             value={yearFilter}
-            onChange={handleYearFilterChange}
+            onChange={(e) => setYearFilter(e.target.value)}
           />
         </Box>
         <Box>
           <label>Submitted:</label>
           <select
             value={submittedFilter}
-            onChange={handleSubmittedFilterChange}
+            onChange={(e) => setSubmittedFilter(e.target.value)}
           >
             <option value="">All</option>
             <option value="true">Submitted</option>
@@ -284,31 +267,40 @@ const AssignmentList = () => {
           </select>
         </Box>
       </Box>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        m="20px 0"
-      >
-        <CSVLink data={csvData} headers={headers} filename="assignments.csv">
-          <Button variant="contained" color="primary">
-            Download CSV
-          </Button>
-        </CSVLink>
-        <Button variant="contained" color="primary" onClick={generateReport}>
-          Download Report
+      <Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={generateReport}
+          disabled={isReportDownloaded}
+        >
+          Generate Report
         </Button>
       </Box>
-      <Box m="40px 0 0 0" height="75vh">
-        <DataGrid
-          rows={filteredData}
-          columns={columns}
-          components={{ Toolbar: GridToolbar }}
-          getRowId={(row) =>
-            `${row.registrationno}-${row.name}-${row.course_name}-${row.submitted_at}-${row.file_path}`
-          }
-        />
-      </Box>
+            
+      <DataGrid
+        rows={filteredData}
+        columns={columns}
+        pageSize={5}
+        rowsPerPageOptions={[5]}
+        components={{
+          Toolbar: GridToolbar,
+        }}
+      />
+      <CSVLink
+        data={csvData}
+        headers={headers}
+        filename="assignments.csv"
+        style={{
+          textDecoration: "none",
+          color: "white",
+          marginTop: "10px",
+        }}
+      >
+        <Button variant="contained" color="primary">
+          Download CSV
+        </Button>
+      </CSVLink>
     </Box>
   );
 };
