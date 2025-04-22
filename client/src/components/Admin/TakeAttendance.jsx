@@ -5,6 +5,7 @@ import {
   MenuItem,
   Select,
   Typography,
+  Checkbox
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useTheme } from "@mui/material";
@@ -52,48 +53,66 @@ const TakeAttendance = () => {
       )
     );
   };
+  
+  const handleAttendanceCheckbox = (id, isChecked) => {
+    setStudents(prev =>
+      prev.map(student =>
+        student.id === id
+          ? { ...student, attendance: isChecked ? "Present" : "Absent" }
+          : student
+      )
+    );
+  };
 
   const handleSubmitAttendance = async () => {
     try {
-      const attendanceData = students.map(student => ({
-        registrationno: student.registrationno,
-        attendance: student.attendance || "Absent", // default to absent if not selected
-        date: new Date().toISOString().split('T')[0]
-      }));
-      await axios.post("http://localhost:3000/mark-attendance-bulk", attendanceData);
-      alert("Attendance marked successfully!");
-      setSelectedCourse("");
-      setStudents([]);
+        const attendanceData = students.map(student => ({
+            registrationno: student.registrationno,
+            course: selectedCourse,
+            status: student.attendance || "Absent",
+            date: new Date().toISOString().split('T')[0],
+            time_slot: getTimeSlot()   
+        }));      
+        await axios.post("http://localhost:3000/attendance/mark-attendance-bulk", attendanceData);
+        alert("Attendance marked successfully!");
+        setSelectedCourse("");
+        setStudents([]);
     } catch (error) {
       console.error("Error submitting attendance:", error.response?.data || error.message);
     }
   };
 
-  const columns = [
+  
+// Inside your columns array:
+const columns = [
     { field: "registrationno", headerName: "Reg. No", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     {
       field: "attendance",
-      headerName: "Attendance",
+      headerName: "Present?",
       flex: 1,
       renderCell: (params) => (
-        <Select
-          value={params.row.attendance || ""}
-          onChange={(e) => handleAttendanceChange(params.row.id, e.target.value)}
-          fullWidth
-          size="small"
-          sx={{ backgroundColor: colors.primary[400], borderRadius: 1 }}
-        >
-          <MenuItem value="">Select</MenuItem>
-          {attendanceOptions.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
+        <Checkbox
+          checked={params.row.attendance === "Present"}
+          onChange={(e) => handleAttendanceCheckbox(params.row.id, e.target.checked)}
+          sx={{ color: colors.secondary }}
+        />
       )
     }
   ];
+
+  const getTimeSlot = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour >= 6 && currentHour < 12) {
+      return "Morning";
+    } else if (currentHour >= 12 && currentHour < 17) {
+      return "Afternoon";
+    } else if (currentHour >= 17 && currentHour <= 21) {
+      return "Evening";
+    } else {
+      return "Other"; // for night, early morning etc.
+    }
+  };
 
   return (
     <Box m="20px">

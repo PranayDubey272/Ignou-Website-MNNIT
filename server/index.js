@@ -11,6 +11,7 @@ import contactRoutes from "./routes/contactRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import excelRoutes from "./routes/excelRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
+import attendanceRoute from "./routes/attendanceRoute.js";
 import db from "./database.js";
 import path from "path";
 
@@ -40,6 +41,7 @@ app.use("/assignments", assignmentRoutes);
 app.use("/submissions", submissionRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));  // Fix: Use __dirname
 app.use("/", studentRoutes);
+app.use("/attendance",attendanceRoute);
 
 app.get("/", async (req, res) => {
   res.send("Server is running");
