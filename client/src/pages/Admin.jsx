@@ -19,6 +19,7 @@ import AdminSidebar from "../sidebar/AdminSidebar.jsx";
 import AdminDashboard from "../components/Admin/AdminDashboard.jsx";
 import AddAssignment from "../components/Admin/AddAssignment.jsx";
 import AssignmentReport from "../components/Admin/AssignmentReport.jsx";
+import TakeAttendance from "../components/Admin/TakeAttendance.jsx";
 
 const Admin = () => {
   const navigator = useNavigate();
@@ -87,6 +88,7 @@ const Admin = () => {
             {page === "Assignment" && <AssignmentList></AssignmentList>}
             {page === "AddAssignment" && <AddAssignment></AddAssignment>}
             {page === "AssignmentReport" && <AssignmentReport></AssignmentReport>}
+            {page === "TakeAttendance" && <TakeAttendance></TakeAttendance>}
 
             {page === "ImportExcel" && <ImportStudentData></ImportStudentData>}
             {page === "Email" && <SendEmailsButton></SendEmailsButton>}

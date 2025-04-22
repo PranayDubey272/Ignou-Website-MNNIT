@@ -27,22 +27,50 @@ export const getStudentsList = async (req, res) => {
   }
 };
 
+
+
+export const getStudentsByCourse = async (req, res) => {
+  try {
+    const { courseName } = req.params;
+    // Escape the course name to ensure proper search
+    const query = `
+      SELECT registrationno, name, programme, semester, session, year
+      FROM users
+      WHERE courses ILIKE $1
+      AND role = 'user';
+    `;
+
+    // Wrap the course name in quotes for the ILIKE query (matching like "course")
+    const result = await db.query(query, [`%\"${courseName}\"%`]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "No students found for this course." });
+    }
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching students by course:", error);
+    res.status(500).json({ error: "Failed to fetch students" });
+  }
+};
+
+
+
 export const getCoursesList = async (req, res) => {
   try {
     const query = `
-      SELECT DISTINCT TRIM(course_name) AS course_name
-      FROM users,
-      LATERAL jsonb_array_elements_text(courses::jsonb) AS course_name
-      WHERE role = 'user' AND courses IS NOT NULL
-      ORDER BY course_name;
+      SELECT DISTINCT jsonb_array_elements_text(courses::jsonb) AS course_name
+      FROM users
+      WHERE courses IS NOT NULL;
     `;
-    const { rows } = await db.query(query);
-    // Format response to match frontend expectation
-    const courses = rows.map((row) => ({ course_name: row.course_name }));
-    res.json(courses);
-  } catch (err) {
-    console.error("Error fetching courses:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    const result = await db.query(query);
+
+    const courseList = result.rows.map((row) => row.course_name);
+
+    res.json(courseList);
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Failed to fetch courses" });
   }
 };
 

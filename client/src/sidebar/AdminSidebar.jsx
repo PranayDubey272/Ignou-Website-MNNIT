@@ -135,7 +135,7 @@ const AdminSidebar = ({ handlePage }) => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Student
+              Student Info
             </Typography>
             <Box onClick={() => handleClick("StudentList")}>
               <Item
@@ -145,17 +145,9 @@ const AdminSidebar = ({ handlePage }) => {
                 setSelected={setSelected}
               />
             </Box>
-            <Box onClick={() => handleClick("AddAssignment")}>
-            <Item
-              title="Add Assignment"
-              icon={<AssignmentIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-          </Box>
             <Box onClick={() => handleClick("Assignment")}>
               <Item
-                title="Assignment"
+                title="Submitted Assignment"
                 icon={<AssignmentIcon />}
                 selected={selected}
                 setSelected={setSelected}
@@ -169,6 +161,42 @@ const AdminSidebar = ({ handlePage }) => {
                 setSelected={setSelected}
               />
             </Box>
+            <Box onClick={() => handleClick("Attendance")}>
+              <Item
+                title="Attendance Sheet"
+                // to="/announcement"
+                icon={<CoPresentIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </Box>
+
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Services
+            </Typography>
+
+            <Box onClick={() => handleClick("TakeAttendance")}>
+            <Item
+              title="Take Attendance"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          </Box>
+
+
+            <Box onClick={() => handleClick("AddAssignment")}>
+            <Item
+              title="Add Assignment"
+              icon={<AssignmentIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          </Box>
 
             <Box onClick={() => handleClick("ImportExcel")}>
               <Item
@@ -179,13 +207,6 @@ const AdminSidebar = ({ handlePage }) => {
                 setSelected={setSelected}
               />
             </Box>
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Services
-            </Typography>
             <Box onClick={() => handleClick("Email")}>
               <Item
                 title="Email"
@@ -213,15 +234,7 @@ const AdminSidebar = ({ handlePage }) => {
                 setSelected={setSelected}
               />
             </Box>
-            <Box onClick={() => handleClick("Attendance")}>
-              <Item
-                title="Attendance Sheet"
-                // to="/announcement"
-                icon={<CoPresentIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </Box>
+
             <Typography
               variant="h6"
               color={colors.grey[300]}

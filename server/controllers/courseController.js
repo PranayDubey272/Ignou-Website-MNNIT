@@ -21,3 +21,19 @@ export const getCourses = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch courses" });
   }
 };
+
+export const getAllCourses = async (req, res) => {
+  try {
+    let query = `
+      SELECT DISTINCT course_name
+      FROM courses;
+    `;
+    const result = await db.query(query);
+    const courseList = result.rows.map(row => row.course_name);
+    res.json(courseList);
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Failed to fetch courses" });
+  }
+};
+
