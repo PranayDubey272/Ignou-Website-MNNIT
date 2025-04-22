@@ -8,7 +8,8 @@ import AdminMessageForm from "../Messages/AddMessage.jsx";
 import AdminAnnouncementPage from "../components/Admin/AdminAnnouncementPage.jsx";
 import StudentsList from "../components/Admin/StudentsList.jsx";
 import AssignmentList from "../components/Admin/AssignmentList.jsx";
-import AttendanceSheet from "../components/Admin/Attendance.jsx";
+// import AttendanceSheet from "../components/Admin/Attendance.jsx";
+import AttendanceReport from "../components/Admin/AttendanceReport.jsx";
 import MessagesList from "../Messages/MessagesList.jsx";
 import AnnouncementDeletePage from "../components/Admin/AccouncementDeletePage.jsx";
 import { useEffect } from "react";
@@ -96,7 +97,9 @@ const Admin = () => {
             {page === "Announcement" && (
               <AdminAnnouncementPage></AdminAnnouncementPage>
             )}
-            {page === "Attendance" && <AttendanceSheet></AttendanceSheet>}
+            {page === "AttendanceReport" && <AttendanceReport></AttendanceReport>}
+            
+            {/* {page === "Attendance" && <AttendanceSheet></AttendanceSheet>} */}
             {page === "MessageList" && <MessagesList></MessagesList>}
             {page === "AnnouncementDeletePage" && (
               <AnnouncementDeletePage></AnnouncementDeletePage>

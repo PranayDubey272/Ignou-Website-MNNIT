@@ -161,10 +161,9 @@ const AdminSidebar = ({ handlePage }) => {
                 setSelected={setSelected}
               />
             </Box>
-            <Box onClick={() => handleClick("Attendance")}>
+            <Box onClick={() => handleClick("AttendanceReport")}>
               <Item
-                title="Attendance Sheet"
-                // to="/announcement"
+                title="Attendance Report"
                 icon={<CoPresentIcon />}
                 selected={selected}
                 setSelected={setSelected}

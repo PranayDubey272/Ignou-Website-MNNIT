@@ -4,7 +4,7 @@ import { ColorModeContext, useMode } from "../ui/theme";
 import Topbar from "../ui/Topbar.jsx";
 import StudentsList from "../components/Admin/StudentsList.jsx";
 import AssignmentList from "../components/Admin/AssignmentList.jsx";
-import AttendanceSheet from "../components/Admin/Attendance.jsx";
+// import AttendanceSheet from "../components/Admin/Attendance.jsx";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -78,7 +78,7 @@ const Staff = () => {
             {page === "Dashboard" && <OfficeStaffDashboard handlePage={handlePage} />}
             {page === "StudentList" && <StudentsList></StudentsList>}
             {page === "Assignment" && <AssignmentList></AssignmentList>}
-            {page === "Attendance" && <AttendanceSheet></AttendanceSheet>}
+            {/* {page === "Attendance" && <AttendanceSheet></AttendanceSheet>} */}
             {page === "BCA" && <></>}
             {page === "PGDCA" && <></>}
           </main>
