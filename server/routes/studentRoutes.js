@@ -7,8 +7,8 @@ import {
   getAttendanceSheet,
   getCoursesList,
   updateGrade,
-  getStudentReport,
-  getStudentsByCourse
+  getStudentsByCourse,
+  getStudentReport
 } from "../controllers/studentController.js";
 
 const router = express.Router();

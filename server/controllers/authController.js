@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const login = async (req, res) => {
-  console.log("here");
   const { registration, password } = req.body;
   try {
     const result = await db.query(

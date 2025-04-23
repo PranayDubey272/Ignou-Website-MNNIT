@@ -3,7 +3,6 @@ import { sendResetEmail } from '../utils/mailer.js';
 import db from '../database.js';
 
 export const forgotPassword = async (req, res) => {
-    console.log("here");
     const { email } = req.body;
     try {
       console.log("here2");
