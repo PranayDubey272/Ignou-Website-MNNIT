@@ -5,10 +5,15 @@
     "@mui/x-date-pickers": "^8.0.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.14.0",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.10.1",
+    "pg": "^8.15.1",
     "recharts": "^2.15.3"
   }
 }

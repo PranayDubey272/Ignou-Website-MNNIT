@@ -1,5 +1,6 @@
 import db from "../database.js";
 import nodemailer from "nodemailer";
+import cron from "node-cron";
 
 async function sendEmail(email, name, subject, body) {
   try {
@@ -130,5 +131,54 @@ export const sendWelcomeEmail = async (to, name) => {
     throw err;
   }
 };
+
+export const scheduleDeadlineReminders = async () => {
+  console.log("⏳ Scheduling deadline reminder cron job...");
+
+  cron.schedule("0 * * * *", async () => {
+    console.log(" Running deadline reminder check...");
+
+    try {
+      const { rows } = await db.query(`
+        SELECT u.name, u.email, a.assignment_name, a.deadline
+        FROM assignments a
+        JOIN users u
+          ON u.courses LIKE '%' || a.course_name || '%'
+        WHERE a.deadline BETWEEN NOW() AND NOW() + INTERVAL '24 HOURS'
+      `);      
+
+      if (rows.length === 0) {
+        console.log(" No deadlines in next 24 hours.");
+        return;
+      }
+
+      for (const user of rows) {
+        const subject = ` Reminder: "${user.assignment_name}" is due soon`;
+        const body = `
+          Hello ${user.name},
+
+          This is a reminder that your assignment "${user.assignment_name}" is due by 
+          ${new Date(user.deadline).toLocaleString()}.
+
+          Please ensure timely submission.
+
+          Best of luck!  
+          MNNIT-IGNOU Team
+        `;
+
+        try {
+          const result = await sendEmail(user.email, user.name, subject, body);
+          console.log(` Reminder sent to ${user.email}: ${result}`);
+        } catch (err) {
+          console.error(` Failed to send to ${user.email}:`, err.message);
+        }
+      }
+    } catch (err) {
+      console.error("❗ Error fetching assignment reminders:", err.message);
+    }
+  });
+};
+
+
 
 export default sendWelcomeEmail;

@@ -14,7 +14,7 @@ import submissionRoutes from "./routes/submissionRoutes.js";
 import attendanceRoute from "./routes/attendanceRoute.js";
 import db from "./database.js";
 import path from "path";
-
+import { scheduleDeadlineReminders } from "./controllers/emailController.js";
 const app = express();
 const port = process.env.BACKEND_PORT;
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -53,3 +53,6 @@ app.get("/messages", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+// deadline reminder
+scheduleDeadlineReminders();
