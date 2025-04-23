@@ -11,6 +11,8 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import MuiAlert from "@mui/material/Alert";
@@ -27,6 +29,7 @@ const ImportStudentData = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [session, setSession] = useState("");
   const [year, setYear] = useState("");
+  const [sendWelcomeMail, setSendWelcomeMail] = useState(false); // NEW
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -38,6 +41,7 @@ const ImportStudentData = () => {
     formData.append("file", file);
     formData.append("session", session);
     formData.append("year", year);
+    formData.append("sendWelcomeMail", sendWelcomeMail); // NEW
 
     try {
       await axios.post(
@@ -71,6 +75,7 @@ const ImportStudentData = () => {
     setFile(null);
     setSession("");
     setYear("");
+    setSendWelcomeMail(false); // Reset checkbox
   };
 
   const handleSnackbarClose = () => {
@@ -84,7 +89,6 @@ const ImportStudentData = () => {
       alignItems="center"
       justifyContent="center"
       height="80vh"
-      elevation={4}
       p={4}
     >
       <Typography variant="h2" gutterBottom>
@@ -92,7 +96,6 @@ const ImportStudentData = () => {
       </Typography>
       <Box mb={2} color="secondary">
         <Input type="file" onChange={handleFileChange} />
-        {/* {!file && <Typography variant="body1">No file chosen</Typography>} */}
       </Box>
       <Box mb={2} display="flex" alignItems="center">
         <FormControl sx={{ mr: 2 }}>
@@ -131,6 +134,21 @@ const ImportStudentData = () => {
           </Select>
         </FormControl>
       </Box>
+
+      {/* Checkbox for Welcome Mail */}
+      <Box mb={2}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={sendWelcomeMail}
+              onChange={(e) => setSendWelcomeMail(e.target.checked)}
+              color="secondary"
+            />
+          }
+          label="Send welcome mail to first-year students"
+        />
+      </Box>
+
       <Box display="flex" alignItems="center">
         <Button
           variant="contained"

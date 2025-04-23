@@ -105,3 +105,30 @@ export const sendEmailToSelectedUsers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const sendWelcomeEmail = async (to, name) => {
+  const subject = "Welcome to the New Semester!";
+  const body = `
+    Dear ${name},
+
+    Welcome to your first semester! We are excited to have you join us.
+
+    This email confirms your successful registration in our system. 
+    Please keep this email for future reference.
+
+    If you have any questions, feel free to reach out to the admin office.
+
+    Best regards,  
+    Academic Affairs Team
+  `;
+
+  try {
+    const result = await sendEmail(to, name, subject, body);
+    return result;
+  } catch (err) {
+    console.error(`Failed to send welcome email to ${to}:`, err.message);
+    throw err;
+  }
+};
+
+export default sendWelcomeEmail;

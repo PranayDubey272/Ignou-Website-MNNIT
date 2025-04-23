@@ -1,23 +1,23 @@
 import xlsx from "xlsx";
 import db from "../database.js";
+import sendWelcomeEmail from "./emailController.js";
 
 export const ExcelFile = async (req, res) => {
   try {
-    const { session, year } = req.body;
+    const { session, year, sendWelcomeMail } = req.body;
     const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(worksheet);
 
     const query = `
-      INSERT INTO users (registrationno, name, programme, courses, mobile, email, semester, session, year,password)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10)
+      INSERT INTO users (registrationno, name, programme, courses, mobile, email, semester, session, year, password)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `;
 
     for (const row of data) {
       const lastLetter = row.programme.slice(-1);
       const semesterValue = isNaN(lastLetter) ? "1" : lastLetter;
-      console.log(row.programme, lastLetter, semesterValue);
       const updatedProgramme = isNaN(lastLetter)
         ? `${row.programme}1`
         : row.programme;
@@ -34,6 +34,12 @@ export const ExcelFile = async (req, res) => {
         year,
         row.registrationno,
       ]);
+
+      // Send welcome mail if checkbox was ticked 
+      if (sendWelcomeMail === "true") {
+        console.log(`Sending welcome email to ${row.email}`);
+        await sendWelcomeEmail(row.email, row.name); 
+      }
     }
 
     res.status(200).send("File uploaded and data saved to database");
