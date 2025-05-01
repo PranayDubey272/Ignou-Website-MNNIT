@@ -27,7 +27,7 @@ const AssignmentList = () => {
   const [yearFilter, setYearFilter] = useState("");
 
   const columns = [
-    { field: "registrationno", headerName: "Registration No.", flex: 1 },
+    { field: "registration_no", headerName: "Registration No.", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "programme", headerName: "Programme", flex: 1 },
     {
@@ -290,7 +290,7 @@ const AssignmentList = () => {
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           getRowId={(row) =>
-            `${row.registrationno}-${row.name}-${row.course_name}-${row.submitted_at}-${row.file_path}`
+            `${row.registration_no}-${row.name}-${row.course_name}-${row.submitted_at}-${row.file_path}`
           }
         />
       </Box>

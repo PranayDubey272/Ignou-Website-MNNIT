@@ -21,7 +21,7 @@ import AdminDashboard from "../components/Admin/AdminDashboard.jsx";
 import AddAssignment from "../components/Admin/AddAssignment.jsx";
 import AssignmentReport from "../components/Admin/AssignmentReport.jsx";
 import TakeAttendance from "../components/Admin/TakeAttendance.jsx";
-
+import MarksEntry from "../components/Admin/MarksEntry.jsx";
 const Admin = () => {
   const navigator = useNavigate();
   const [theme, colorMode] = useMode();
@@ -98,9 +98,9 @@ const Admin = () => {
               <AdminAnnouncementPage></AdminAnnouncementPage>
             )}
             {page === "AttendanceReport" && <AttendanceReport></AttendanceReport>}
-            
+            {page === "MarksEntry" && <MarksEntry></MarksEntry>}
             {/* {page === "Attendance" && <AttendanceSheet></AttendanceSheet>} */}
-            {page === "MessageList" && <MessagesList></MessagesList>}
+            {page === "MessageList" && <MessagesList role="admin"></MessagesList>}
             {page === "AnnouncementDeletePage" && (
               <AnnouncementDeletePage></AnnouncementDeletePage>
             )}

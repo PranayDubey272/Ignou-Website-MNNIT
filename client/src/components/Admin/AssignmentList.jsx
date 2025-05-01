@@ -31,21 +31,23 @@ const AssignmentList = () => {
       axios.get("http://localhost:3000/student-courses"),
     ])
       .then(([assignmentsRes, coursesRes]) => {
+        // Format assignments data
         const formattedData = assignmentsRes.data.map((item, idx) => ({
           ...item,
-          id: `${item.registrationno}-${item.assignment_id}` || idx,
+          id: `${item.registration_no}-${item.assignment_id}` || idx,
           grade: item.grade || "na", // default to 'na' if no grade
         }));
         
         setData(formattedData);
 
+        // Format courses data
         const uniqueCourses = Array.from(
           new Set(
-            coursesRes.data
+            coursesRes.data.data // Access the correct data here
               .map((c) =>
-                typeof c.course_name === "string"
-                  ? c.course_name.replace(/^["']|["']$/g, "").replace("]", "")
-                  : c.course_name
+                typeof c === "string"
+                  ? c.replace(/^["']|["']$/g, "").replace("]", "")
+                  : c
               )
               .filter(Boolean)
           )
@@ -65,7 +67,7 @@ const AssignmentList = () => {
   const handleGradeChange = async (newGrade, row) => {
     try {
       await axios.put(`http://localhost:3000/update-grade`, {
-        registrationno: row.registrationno,
+        registration_no: row.registration_no,
         assignment_id: row.assignment_id,
         grade: newGrade,
       });
@@ -90,7 +92,7 @@ const AssignmentList = () => {
   });
 
   const columns = [
-    { field: "registrationno", headerName: "Reg. No", flex: 1 },
+    { field: "registration_no", headerName: "Reg. No", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "assignment_name", headerName: "Assignment", flex: 1 },
     { field: "submitted_at", headerName: "Submitted At", flex: 1 },

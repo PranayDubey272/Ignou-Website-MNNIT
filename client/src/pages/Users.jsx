@@ -11,11 +11,11 @@ import axios from "axios";
 import handleLogoutOperations from "../util/utils.js";
 import Topbar from "../ui/Topbar.jsx";
 import StudentSidebar from "../sidebar/StudentSidebar.jsx";
-
+import MessagesList from "../Messages/MessagesList.jsx"
 const Users = () => {
   const navigator = useNavigate();
   const location = useLocation();
-  const registrationno = location.state?.registrationno || "";
+  const registration_no = location.state?.registration_no || "";
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
   const [page, setPage] = useState("Dashboard");
@@ -72,7 +72,7 @@ const Users = () => {
           <StudentSidebar
             isSidebar={isSidebar}
             handlePage={handlePage}
-            registrationno={registrationno}
+            registration_no={registration_no}
           />
           <main className="content">
             <Topbar setIsSidebar={setIsSidebar} />
@@ -80,12 +80,13 @@ const Users = () => {
             {page === "Dashboard" && (
               <StudentDashboardNew
                 handlePage={handlePage}
-                registrationno={registrationno}
+                registration_no={registration_no}
               ></StudentDashboardNew>
             )}
             {page === "Profile" && <ProfilePage></ProfilePage>}
             {page === "Assignments" && <AssignmentForm></AssignmentForm>}
             {page === "PreviousAssignment" && <SubmissionList></SubmissionList>}
+            {page === "MessageList" && <MessagesList role="student"></MessagesList>}
           </main>
         </div>
       </ThemeProvider>

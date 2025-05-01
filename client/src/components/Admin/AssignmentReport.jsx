@@ -23,7 +23,7 @@ import html2canvas from 'html2canvas'; // <-- Import html2canvas
 const AssignmentReport = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [registrationNo, setRegistrationNo] = useState("");
+  const [registration_no, setregistration_no] = useState("");
   const [studentData, setStudentData] = useState([]);
   const [searched, setSearched] = useState(false);
   const [overallGrade, setOverallGrade] = useState(null); // State to hold the overall grade
@@ -63,7 +63,7 @@ const AssignmentReport = () => {
 
   const handleSearch = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/student-report/${registrationNo}`);
+      const res = await axios.get(`http://localhost:3000/student-report/${registration_no}`);
       console.log(res.data);
 
       const formattedData = res.data.map((item, idx) => ({
@@ -86,7 +86,7 @@ const AssignmentReport = () => {
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text(`Student Report: ${registrationNo}`, 14, 22);
+    doc.text(`Student Report: ${registration_no}`, 14, 22);
 
     const tableColumn = ["Assignment", "Submitted At", "Grade"];
     const tableRows = [];
@@ -115,10 +115,10 @@ const AssignmentReport = () => {
       html2canvas(chartRef.current).then((canvas) => {
         const dataUrl = canvas.toDataURL('image/png');
         doc.addImage(dataUrl, 'PNG', 14, doc.autoTable.previous.finalY + 20, 180, 100);
-        doc.save(`${registrationNo}_report.pdf`);
+        doc.save(`${registration_no}_report.pdf`);
       });
     } else {
-      doc.save(`${registrationNo}_report.pdf`);
+      doc.save(`${registration_no}_report.pdf`);
     }
   };
 
@@ -154,14 +154,14 @@ const AssignmentReport = () => {
         <TextField
           fullWidth
           label="Registration Number"
-          value={registrationNo}
-          onChange={(e) => setRegistrationNo(e.target.value)}
+          value={registration_no}
+          onChange={(e) => setregistration_no(e.target.value)}
         />
         <Button
           variant="contained"
           color="primary"
           onClick={handleSearch}
-          disabled={!registrationNo}
+          disabled={!registration_no}
         >
           Search
         </Button>

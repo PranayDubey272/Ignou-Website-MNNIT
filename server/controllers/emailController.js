@@ -20,46 +20,46 @@ async function sendEmail(email, name, subject, body) {
       to: email,
       subject: subject,
       html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #1a1a1a; /* Dark background color */
-      color: #fff; /* Text color */
-      padding: 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #fff; /* Container background color */
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
-    }
-    h2, h3 {
-      color: black;
-      text-align: center; /* Center align heading */
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="logo">
-      <img src="http://ignou.ac.in/images/logo.png" alt="Logo" style="height: 80px;">
-    </div>
-    <h2>Hello👋, ${name} </h2>
-    <h3>MNNIT-IGNOU</h3>
-    <h2>${body} </h2>
-  </div>
-</body>
-</html>`,
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a; /* Dark background color */
+            color: #fff; /* Text color */
+            padding: 20px;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff; /* Container background color */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+          }
+          h2, h3 {
+            color: black;
+            text-align: center; /* Center align heading */
+          }
+          .logo {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="logo">
+            <img src="http://ignou.ac.in/images/logo.png" alt="Logo" style="height: 80px;">
+          </div>
+          <h2>Hello👋, ${name} </h2>
+          <h3>MNNIT-IGNOU</h3>
+          <h2>${body} </h2>
+        </div>
+      </body>
+      </html>`,
     });
 
     return "success";
@@ -142,8 +142,8 @@ export const scheduleDeadlineReminders = async () => {
       const { rows } = await db.query(`
         SELECT u.name, u.email, a.assignment_name, a.deadline
         FROM assignments a
-        JOIN users u
-          ON u.courses LIKE '%' || a.course_name || '%'
+        JOIN user_courses uc ON uc.course_id = a.course_id
+        JOIN users u ON u.registration_no = uc.registration_no
         WHERE a.deadline BETWEEN NOW() AND NOW() + INTERVAL '24 HOURS'
       `);      
 

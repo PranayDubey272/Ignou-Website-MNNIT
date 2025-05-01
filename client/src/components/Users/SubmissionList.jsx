@@ -17,7 +17,7 @@ const SubmissionList = () => {
   const colors = tokens(theme.palette.mode);
   const [data, setData] = useState([]);
 
-  const { registrationno } = useUserContext();
+  const { registration_no } = useUserContext();
   const columns = [
     {
       field: "assignment_name",
@@ -75,9 +75,9 @@ const SubmissionList = () => {
   const headers = columns.map((column) => column.headerName);
 
   useEffect(() => {
-    if (registrationno) {
+    if (registration_no) {
       axios
-        .get(`http://localhost:3000/studentsubmissionslist?registrationno=${registrationno}`)
+        .get(`http://localhost:3000/studentsubmissionslist?registration_no=${registration_no}`)
         .then((response) => {
           setData(response.data); // This ensures the state gets updated correctly
         })
@@ -85,7 +85,7 @@ const SubmissionList = () => {
           console.error("Error fetching data:", error);
         });
     }
-  }, [registrationno]);
+  }, [registration_no]);
   
 
   const downloadFile = (filePath) => {

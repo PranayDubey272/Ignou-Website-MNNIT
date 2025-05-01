@@ -21,6 +21,6 @@ router.get("/studentsprofile", getStudentProfile);
 router.get("/studentsubmissionslist", getStudentSubmissionsList);
 router.get("/attendancesheet", getAttendanceSheet);
 router.put("/update-grade", updateGrade);
-router.get("/student-report/:registrationno", getStudentReport);
+router.get("/student-report/:registration_no", getStudentReport);
 router.get("/students-by-course/:courseName", getStudentsByCourse);
 export default router;

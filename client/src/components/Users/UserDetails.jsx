@@ -68,7 +68,7 @@ const UserDetails = () => {
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="body1">{state.registrationno}</Typography>
+              <Typography variant="body1">{state.registration_no}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>

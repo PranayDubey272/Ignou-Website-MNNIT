@@ -3,7 +3,7 @@ import { tokens } from "../../ui/theme";
 import AssignmentForm from "./AssignmentForm";
 import Heading from "../../ui/Heading";
 
-const StudentDashboard = ({ handlePage, registrationno }) => {
+const StudentDashboard = ({ handlePage, registration_no }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -16,7 +16,7 @@ const StudentDashboard = ({ handlePage, registrationno }) => {
           subtitle="MNNIT Allahabad Ignou Study Center"
         />
       </Box>
-      {/* <AssignmentForm registrationno={registrationno}></AssignmentForm> */}
+      {/* <AssignmentForm registration_no={registration_no}></AssignmentForm> */}
     </Box>
   );
 };

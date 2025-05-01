@@ -15,7 +15,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const MessagesList = () => {
+// Pass `role` as prop or get it from context/auth
+const MessagesList = ({ role }) => {
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
@@ -23,9 +24,7 @@ const MessagesList = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/messages"
-        );
+        const response = await axios.get("http://localhost:3000/messages");
         setMessages(response.data);
       } catch (error) {
         toast.error("Error fetching messages");
@@ -36,9 +35,7 @@ const MessagesList = () => {
 
   const handleDeleteMessage = async () => {
     try {
-      await axios.delete(
-        `http://localhost:3000/messages/${selectedMessage}`
-      );
+      await axios.delete(`http://localhost:3000/messages/${selectedMessage}`);
       setMessages(messages.filter((message) => message.id !== selectedMessage));
       toast.success("Message deleted successfully");
     } catch (error) {
@@ -60,7 +57,11 @@ const MessagesList = () => {
 
   const columns = [
     { field: "message_text", headerName: "Message", flex: 2 },
-    {
+  ];
+
+  // Add delete action only for admin
+  if (role === "admin") {
+    columns.push({
       field: "actions",
       headerName: "Actions",
       flex: 0.2,
@@ -72,8 +73,8 @@ const MessagesList = () => {
           <DeleteIcon color="error" />
         </Button>
       ),
-    },
-  ];
+    });
+  }
 
   return (
     <Box m={4}>
@@ -85,34 +86,41 @@ const MessagesList = () => {
       >
         Messages List
       </Typography>
+
       <DataGrid
         rows={messages}
         columns={columns}
         components={{ Toolbar: GridToolbar }}
         getRowId={(row) => row.id}
         autoHeight
+        disableSelectionOnClick
       />
-      <Dialog
-        open={isConfirmationOpen}
-        onClose={handleCloseConfirmation}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Delete Message?"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this message?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmation} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteMessage} color="secondary" autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+
+      {/* Admin-only delete confirmation */}
+      {role === "admin" && (
+        <Dialog
+          open={isConfirmationOpen}
+          onClose={handleCloseConfirmation}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Delete Message?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this message?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmation} color="secondary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteMessage} color="secondary" autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
       <ToastContainer />
     </Box>
   );

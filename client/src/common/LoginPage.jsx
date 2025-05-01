@@ -11,10 +11,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const LoginPage = () => {
-  const { setRegistrationNo } = useUserContext();
+  const { setregistration_no } = useUserContext();
   const registrationRef = useRef(null);
   const passwordRef = useRef(null);
-  const { handleLogin, loginError, isButtonClicked } = useLoginHandler(setRegistrationNo);
+  const { handleLogin, loginError, isButtonClicked } = useLoginHandler(setregistration_no);
 
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showUpdatePasswordModal, setShowUpdatePasswordModal] = useState(false);

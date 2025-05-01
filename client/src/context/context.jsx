@@ -5,19 +5,19 @@ const UserContext = createContext();
 
 const Provider = ({ children }) => {
   const [userData, setUserData] = useState();
-  const [registrationno, setRegistrationNo] = useState();
+  const [registration_no, setregistration_no] = useState();
   const [messages, addMessages] = useState([]);
   const [tasksData, setTaskData] = useState([
     // Your tasks data...
   ]);
   useEffect(() => {
-    if (registrationno) {
+    if (registration_no) {
       fetchStudentProfile();
     }
-  }, [registrationno]); // Depend on registrationno
+  }, [registration_no]); // Depend on registration_no
   
   async function fetchStudentProfile() {
-    const url = `http://localhost:3000/studentsprofile?registrationno=${registrationno}`;
+    const url = `http://localhost:3000/studentsprofile?registration_no=${registration_no}`;
 
     try {
       const response = await axios.get(url);
@@ -50,8 +50,8 @@ const Provider = ({ children }) => {
       value={{
         userData,
         setUserData,
-        registrationno,
-        setRegistrationNo,
+        registration_no,
+        setregistration_no,
         tasksData,
         messages,
         addMessages,

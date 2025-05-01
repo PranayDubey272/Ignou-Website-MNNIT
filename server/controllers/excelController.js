@@ -10,11 +10,6 @@ export const ExcelFile = async (req, res) => {
     const worksheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(worksheet);
 
-    const query = `
-      INSERT INTO users (registrationno, name, programme, courses, mobile, email, semester, session, year, password)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `;
-
     for (const row of data) {
       const lastLetter = row.programme.slice(-1);
       const semesterValue = isNaN(lastLetter) ? "1" : lastLetter;
@@ -22,23 +17,66 @@ export const ExcelFile = async (req, res) => {
         ? `${row.programme}1`
         : row.programme;
 
-      await db.query(query, [
-        row.registrationno,
-        row.name,
-        updatedProgramme,
-        row.courses,
-        row.mobile,
-        row.email,
-        semesterValue,
-        session,
-        year,
-        row.registrationno,
-      ]);
+      // Insert user
+      await db.query(
+        `
+        INSERT INTO users (registration_no, name, programme, mobile, email, semester, session, year, password, role)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'student')
+        `,
+        [
+          row.registration_no,
+          row.name,
+          updatedProgramme,
+          row.mobile,
+          row.email,
+          semesterValue,
+          session,
+          year,
+          row.registration_no,
+        ]
+      );
 
-      // Send welcome mail if checkbox was ticked 
+      const courseList = row.courses.split(",").map(c => c.trim());
+
+      for (const courseRaw of courseList) {
+        const courseName = courseRaw.trim().toLowerCase();
+
+        // Try inserting the course or ignoring if it already exists
+        const insertCourse = await db.query(
+          `INSERT INTO courses (course_name)
+            VALUES ($1)
+            ON CONFLICT (course_name) DO NOTHING
+            RETURNING course_id`,
+          [courseName]
+        );
+
+        let courseId;
+        if (insertCourse.rows.length > 0) {
+          // If the course was inserted, get the course_id
+          courseId = insertCourse.rows[0].course_id;
+        } else {
+          // If the course already exists, query for the course_id
+          const existingCourseResult = await db.query(
+            `SELECT course_id FROM courses WHERE LOWER(TRIM(course_name)) = $1`,
+            [courseName]
+          );
+          courseId = existingCourseResult.rows[0].course_id;
+        }
+
+        // Link user and course in user_courses (will not insert duplicates due to ON CONFLICT)
+        await db.query(
+          `
+          INSERT INTO user_courses (registration_no, course_id)
+          VALUES ($1, $2)
+          ON CONFLICT (registration_no, course_id) DO NOTHING
+          `,
+          [row.registration_no, courseId]
+        );
+      }
+
       if (sendWelcomeMail === "true") {
         console.log(`Sending welcome email to ${row.email}`);
-        await sendWelcomeEmail(row.email, row.name); 
+        await sendWelcomeEmail(row.email, row.name);
       }
     }
 

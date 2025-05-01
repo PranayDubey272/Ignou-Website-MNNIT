@@ -4,13 +4,13 @@ import axios from "axios";
 import handleLogoutOperations from "../util/utils";
 
 
-const useLoginHandler = (setRegistrationNo) => {
+const useLoginHandler = (setregistration_no) => {
   const [loginError, setLoginError] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (registration, password) => {
-    setRegistrationNo(registration);
+    setregistration_no(registration);
     try {
       const response = await axios.post("http://localhost:3000/login", { registration, password });
       if (response.data.success) {
@@ -22,7 +22,7 @@ const useLoginHandler = (setRegistrationNo) => {
         } else if (response.data.role === "office_staff") {
             navigate("/Staff");
         } else {
-            navigate("/users", { state: { registrationno: registration } });
+            navigate("/users", { state: { registration_no: registration } });
         }
       } else {
         handleLogoutOperations();

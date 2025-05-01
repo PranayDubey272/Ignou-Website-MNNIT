@@ -4,35 +4,38 @@ import db from "../database.js";
 
 export const handleAssignmentAddition = async (req, res) => {
   try {
-    console.log("inside admin handler");
-
     const { courseName, assignmentName, deadline } = req.body;
 
     if (!courseName || !assignmentName || !deadline || !req.file) {
-      if (!req.file) console.log("missing file");
       return res.status(400).json({ error: "Missing required fields or file." });
     }
 
     const filePath = req.file.path;
     const createdAt = new Date().toISOString();
 
+    // Get course_id from course name
+    const courseRes = await db.query("SELECT course_id FROM courses WHERE course_name = $1", [courseName]);
+    if (courseRes.rows.length === 0) {
+      return res.status(404).json({ error: "Course not found." });
+    }
+    const courseId = courseRes.rows[0].course_id;
+
+    // Check if assignment already exists
     const existingAssignment = await db.query(
-      "SELECT * FROM assignments WHERE course_name = $1 AND assignment_name = $2",
-      [courseName, assignmentName]
+      "SELECT * FROM assignments WHERE course_id = $1 AND assignment_name = $2",
+      [courseId, assignmentName]
     );
 
     if (existingAssignment.rows.length > 0) {
       await db.query(
-        "UPDATE assignments SET file_path = $1, deadline = $2, created_at = $3 WHERE course_name = $4 AND assignment_name = $5",
-        [filePath, deadline, createdAt, courseName, assignmentName]
+        "UPDATE assignments SET file_path = $1, deadline = $2, created_at = $3 WHERE course_id = $4 AND assignment_name = $5",
+        [filePath, deadline, createdAt, courseId, assignmentName]
       );
-      console.log("assignment updated");
     } else {
       await db.query(
-        "INSERT INTO assignments (course_name, assignment_name, file_path, deadline, created_at) VALUES ($1, $2, $3, $4, $5)",
-        [courseName, assignmentName, filePath, deadline, createdAt]
+        "INSERT INTO assignments (course_id, assignment_name, file_path, deadline, created_at) VALUES ($1, $2, $3, $4, $5)",
+        [courseId, assignmentName, filePath, deadline, createdAt]
       );
-      console.log("assignment inserted");
     }
 
     res.status(200).json({ message: "Assignment added/updated successfully." });
@@ -42,44 +45,50 @@ export const handleAssignmentAddition = async (req, res) => {
   }
 };
 
+
 export const handleAssignmentSubmission = async (req, res) => {
   try {
-    console.log("inside handler");
-    const { registrationno, selectedCourse, assignmentName } = req.body;
+    const { registration_no, selectedCourse, assignmentName } = req.body;
 
-    // Ensure all required fields and file are provided
-    if (!registrationno || !selectedCourse || !assignmentName || !req.file) {
-      if(!registrationno) console.log("missing reg");
-      if(!selectedCourse) console.log("missing course");
-      if(!assignmentName) console.log("missing name");
-      if(!req.file) console.log("missing file");
-
-      console.log("missing field or file");
+    if (!registration_no || !selectedCourse || !assignmentName || !req.file) {
       return res.status(400).json({ error: "Missing required fields or file." });
     }
 
     const filePath = req.file.path;
     const currentTime = new Date().toISOString();
 
-    // Check if the submission already exists for the given registrationno, course, and assignment
-    console.log("doint db query");
+    // Get course_id
+    const courseRes = await db.query("SELECT course_id FROM courses WHERE course_name = $1", [selectedCourse]);
+    if (courseRes.rows.length === 0) {
+      return res.status(404).json({ error: "Course not found." });
+    }
+    const courseId = courseRes.rows[0].course_id;
 
-    const existingSubmission = await db.query(
-      "SELECT * FROM submissions WHERE registrationno = $1 AND course_name = $2 AND assignment_name = $3",
-      [registrationno, selectedCourse, assignmentName]
+    // Get assignment_id
+    const assignmentRes = await db.query(
+      "SELECT id FROM assignments WHERE course_id = $1 AND assignment_name = $2",
+      [courseId, assignmentName]
     );
-    console.log("after db query");
+    if (assignmentRes.rows.length === 0) {
+      return res.status(404).json({ error: "Assignment not found." });
+    }
+    const assignmentId = assignmentRes.rows[0].id;
 
-    // Update if submission exists, otherwise insert a new one
+    // Check existing submission
+    const existingSubmission = await db.query(
+      "SELECT * FROM submissions WHERE registration_no = $1 AND assignment_id = $2",
+      [registration_no, assignmentId]
+    );
+
     if (existingSubmission.rows.length > 0) {
       await db.query(
-        "UPDATE submissions SET file_path = $1, submitted_at = $2 WHERE registrationno = $3 AND course_name = $4 AND assignment_name = $5",
-        [filePath, currentTime, registrationno, selectedCourse, assignmentName]
+        "UPDATE submissions SET file_path = $1, submitted_at = $2 WHERE registration_no = $3 AND assignment_id = $4",
+        [filePath, currentTime, registration_no, assignmentId]
       );
     } else {
       await db.query(
-        "INSERT INTO submissions (registrationno, file_path, course_name, assignment_name, submitted_at) VALUES ($1, $2, $3, $4, $5)",
-        [registrationno, filePath, selectedCourse, assignmentName, currentTime]
+        "INSERT INTO submissions (registration_no, file_path, assignment_id, submitted_at) VALUES ($1, $2, $3, $4)",
+        [registration_no, filePath, assignmentId, currentTime]
       );
     }
 
@@ -90,60 +99,43 @@ export const handleAssignmentSubmission = async (req, res) => {
   }
 };
 
-export const getAssignmentsForStudent = async (req, res) => {
-  const { registrationno, course } = req.query;
 
-  if (!registrationno) {
+export const getAssignmentsForStudent = async (req, res) => {
+  const { registration_no } = req.query;
+
+  if (!registration_no) {
     return res.status(400).json({ message: "Registration number is required." });
   }
 
   try {
-    const userQuery = `SELECT courses FROM users WHERE registrationno = $1`;
-    const userResult = await db.query(userQuery, [registrationno]);
+    // Step 1: Get all courses for this student
+    const enrolledCourses = await db.query(
+      `SELECT c.course_id, c.course_name 
+       FROM user_courses e 
+       JOIN courses c ON e.course_id = c.course_id 
+       WHERE e.registration_no = $1`,
+      [registration_no]
+    );
 
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ message: "Student not found." });
+    if (enrolledCourses.rows.length === 0) {
+      return res.json([]); // No courses enrolled
     }
 
-    let courses = userResult.rows[0].courses;
+    const courseIds = enrolledCourses.rows.map(c => c.course_id);
 
-    let coursesArray;
-    try {
-      coursesArray = JSON.parse(courses);
-    } catch (err) {
-      coursesArray = [courses];
-    }
+    // Step 2: Get all assignments for those courses the student hasn't submitted
+    const assignments = await db.query(
+      `SELECT a.*, c.course_name
+       FROM assignments a
+       JOIN courses c ON a.course_id = c.course_id
+       WHERE a.course_id = ANY($1::int[])
+       AND a.id NOT IN (
+         SELECT assignment_id FROM submissions WHERE registration_no = $2
+       )`,
+      [courseIds, registration_no]
+    );
 
-    // console.log("Student Courses:", coursesArray);
-
-    if (!Array.isArray(coursesArray) || coursesArray.length === 0) {
-      return res.json([]); // No courses
-    }
-
-    let assignmentsQuery;
-    let assignmentsResult;
-
-    if (course) {
-      // Filter by selected course
-      assignmentsQuery = `
-        SELECT a.* FROM assignments a
-        LEFT JOIN submissions s 
-        ON a.id = s.assignment_id AND s.registrationno = $2
-        WHERE a.course_name = $1 AND s.submission_id IS NULL;
-      `;
-      assignmentsResult = await db.query(assignmentsQuery, [course, registrationno]);
-    } else {
-      // Fetch all courses if course param is not sent
-      assignmentsQuery = `
-        SELECT a.* FROM assignments a
-        LEFT JOIN submissions s 
-        ON a.id = s.assignment_id AND s.registrationno = $2
-        WHERE a.course_name = ANY($1::text[]) AND s.submission_id IS NULL;
-      `;
-      assignmentsResult = await db.query(assignmentsQuery, [coursesArray, registrationno]);
-    }
-
-    return res.json(assignmentsResult.rows);
+    res.json(assignments.rows);
   } catch (error) {
     console.error("Error fetching assignments:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -152,14 +144,23 @@ export const getAssignmentsForStudent = async (req, res) => {
 
 
 
-export const getAllSubmittedAssignments = async(req, res) =>{
-  try{
-    const query = `SELECT * FROM assignments`;
+
+
+export const getAllSubmittedAssignments = async (req, res) => {
+  try {
+    const query = `
+      SELECT s.*, u.name AS student_name, a.assignment_name, c.course_name
+      FROM submissions s
+      JOIN users u ON s.registration_no = u.registration_no
+      JOIN assignments a ON s.assignment_id = a.id
+      JOIN courses c ON a.course_id = c.course_id
+      ORDER BY submitted_at DESC;
+    `;
     const result = await db.query(query);
-    return res.json(query);
-  }
-  catch(error){
-    console.log("Error fetching all assignments", error.response?.data);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching all assignments", error);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
+

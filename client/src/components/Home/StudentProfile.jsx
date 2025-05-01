@@ -13,7 +13,7 @@ import axios from "axios";
 // import UserDetails from "./UserDetails";
 
 const StudentProfileForm = () => {
-  const [registrationno, setRegistrationno] = useState("");
+  const [registration_no, setregistration_no] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
   const [error, setError] = useState(null);
@@ -21,12 +21,12 @@ const StudentProfileForm = () => {
 
   const handleFormSubmit = async () => {
     // Validate the form fields
-    if (registrationno && emailAddress) {
+    if (registration_no && emailAddress) {
       try {
         const response = await axios.post(
           "http://localhost:3000/check-status",
           {
-            registrationno,
+            registration_no,
             emailAddress,
           }
         );
@@ -75,8 +75,8 @@ const StudentProfileForm = () => {
             color="secondary"
             fullWidth
             margin="normal"
-            value={registrationno}
-            onChange={(e) => setRegistrationno(e.target.value)}
+            value={registration_no}
+            onChange={(e) => setregistration_no(e.target.value)}
             required
           />
           <TextField

@@ -6,7 +6,7 @@ import { useUserContext } from "../../context/context";
 import "react-toastify/dist/ReactToastify.css";
 
 const AssignmentOverview = () => {
-  const { registrationno } = useUserContext();
+  const { registration_no } = useUserContext();
   const [courses, setCourses] = useState([]);
   const [assignments, setAssignments] = useState({ active: [], missed: [] });
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -15,7 +15,7 @@ const AssignmentOverview = () => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/assignments/student?registrationno=${registrationno}`
+          `http://localhost:3000/assignments/student?registration_no=${registration_no}`
         );
         const uniqueCourses = [
           ...new Set(response.data.map((assignment) => assignment.course_name)),
@@ -27,12 +27,12 @@ const AssignmentOverview = () => {
     };
 
     fetchCourses();
-  }, [registrationno]);
+  }, [registration_no]);
 
   const fetchAssignments = async (course) => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/assignments/student?registrationno=${registrationno}&course=${course}`
+        `http://localhost:3000/assignments/student?registration_no=${registration_no}&course=${course}`
       );
 
       const now = new Date();
@@ -73,7 +73,7 @@ const AssignmentOverview = () => {
         await axios.post("http://localhost:3000/submissions/submit-assignment", formData, {
           headers: {
             "assignmentid": assignmentId,
-            "registrationno": registrationno,
+            "registration_no": registration_no,
           },
         });
         toast.success("Assignment submitted successfully!");

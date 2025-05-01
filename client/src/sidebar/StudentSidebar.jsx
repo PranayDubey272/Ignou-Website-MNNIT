@@ -9,7 +9,8 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AttachEmailIcon from "@mui/icons-material/AttachEmail";
-
+import MessagesList from "../Messages/MessagesList";
+import SpeakerNotesOutlinedIcon from "@mui/icons-material/SpeakerNotesOutlined";4
 const Item = ({ title, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -154,6 +155,15 @@ const StudentSidebar = ({ handlePage }) => {
               <Item
                 title="Submitted"
                 icon={<AttachEmailIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </Box>
+            <Box onClick={() => handleClick("MessageList")}>
+              <Item
+                title="Message List"
+                // to="/mca"
+                icon={<SpeakerNotesOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />

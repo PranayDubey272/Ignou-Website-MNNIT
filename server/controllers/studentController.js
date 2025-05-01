@@ -5,15 +5,14 @@ export const getStudentsList = async (req, res) => {
   try {
     const query = `
       SELECT 
-        s.registrationno, 
+        s.registration_no, 
         s.name, 
         s.programme, 
-        s.courses, 
         s.mobile, 
         s.email, 
         s.session,
         s.year,
-        s.registrationno AS id 
+        s.registration_no AS id 
       FROM 
         users s 
       WHERE 
@@ -32,16 +31,15 @@ export const getStudentsList = async (req, res) => {
 export const getStudentsByCourse = async (req, res) => {
   try {
     const { courseName } = req.params;
-    // Escape the course name to ensure proper search
     const query = `
-      SELECT registrationno, name, programme, semester, session, year
-      FROM users
-      WHERE courses ILIKE $1
-      AND role = 'user';
+      SELECT s.registration_no, s.name, s.programme, s.semester, s.session, year
+      FROM users s 
+      JOIN user_courses u ON u.registration_no = s.registration_no
+      JOIN courses c ON u.course_id = c.course_id 
+      WHERE c.course_name ILIKE $1 AND s.role = 'user';
     `;
 
-    // Wrap the course name in quotes for the ILIKE query (matching like "course")
-    const result = await db.query(query, [`%\"${courseName}\"%`]);
+    const result = await db.query(query, [`%${courseName}%`]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "No students found for this course." });
@@ -56,53 +54,52 @@ export const getStudentsByCourse = async (req, res) => {
 
 
 
+
 export const getCoursesList = async (req, res) => {
   try {
     const query = `
-      SELECT DISTINCT jsonb_array_elements_text(courses::jsonb) AS course_name
-      FROM users
-      WHERE courses IS NOT NULL;
+      SELECT DISTINCT course_name AS course_name
+      FROM courses;
     `;
     const result = await db.query(query);
 
     const courseList = result.rows.map((row) => row.course_name);
 
-    res.json(courseList);
+    res.json({ data: courseList });  // Wrapping course list in a 'data' field
   } catch (error) {
     console.error("Error fetching courses:", error);
     res.status(500).json({ error: "Failed to fetch courses" });
   }
 };
 
+
 export const getAssignmentList = async (req, res) => {
   try {
     const query = `
       SELECT
-        s.registrationno,
+        s.registration_no,
         s.name,
         s.programme,
         s.session,
         s.year,
-        a.course_name,
+        c.course_name,
         a.assignment_name,
         a.id AS assignment_id,
         sub.submitted_at,
         sub.file_path,
         sub.grade
-      FROM
+    FROM
         assignments a
-      JOIN users s
-        ON s.role = 'user'
-        AND jsonb_typeof(s.courses::jsonb) = 'array'
-        AND s.courses::jsonb @> ('["' || a.course_name || '"]')::jsonb
-      LEFT JOIN submissions sub
+    JOIN users s ON s.role = 'user'
+    JOIN user_courses uc ON s.registration_no = uc.registration_no
+    JOIN courses c ON uc.course_id = c.course_id
+        AND c.course_id = a.course_id  -- Join using course_id
+    LEFT JOIN submissions sub
         ON sub.assignment_id = a.id
-        AND sub.registrationno = s.registrationno
-      ORDER BY
+        AND sub.registration_no = s.registration_no
+    ORDER BY
         a.assignment_name,
-        s.registrationno;
-
-
+        s.registration_no;
     `;
     const { rows } = await db.query(query);
     res.json(rows);
@@ -114,11 +111,11 @@ export const getAssignmentList = async (req, res) => {
 
 
 export const getStudentProfile = async (req, res) => {
-  const registrationno = req.query.registrationno;
+  const registration_no = req.query.registration_no;
   try {
     const result = await db.query(
-      "SELECT * FROM users WHERE registrationno = $1",
-      [registrationno]
+      "SELECT * FROM users WHERE registration_no = $1",
+      [registration_no]
     );
 
     if (result.rows.length > 0) {
@@ -133,23 +130,24 @@ export const getStudentProfile = async (req, res) => {
 };
 
 export const getStudentSubmissionsList = async (req, res) => {
-  const registrationno = req.query.registrationno;
+  const registration_no = req.query.registration_no;
 
   try {
     const result = await db.query(
       `
         SELECT 
-          a.course_name, 
-          a.assignment_name,
-          s.submitted_at, 
-          s.file_path
+            c.course_name, 
+            a.assignment_name,
+            s.submitted_at, 
+            s.file_path
         FROM submissions s
-        JOIN users st ON s.registrationno = st.registrationno
-        LEFT JOIN assignments a ON s.assignment_id = a.id
-        WHERE st.registrationno = $1
+        JOIN users st ON s.registration_no = st.registration_no
+        JOIN assignments a ON s.assignment_id = a.id
+        JOIN courses c ON a.course_id = c.course_id  -- Join assignments with courses based on course_id
+        WHERE st.registration_no = $1
         ORDER BY s.submitted_at DESC;
       `,
-      [registrationno]
+      [registration_no]
     );
 
     if (result.rows.length > 0) {
@@ -168,14 +166,15 @@ export const getAttendanceSheet = async (req, res) => {
     const result = await db.query(
       `
         SELECT
-          s.registrationno,
+          s.registration_no,
           s.name,
           s.programme,
           NULL AS signature,
           NULL AS remark
-        FROM users s
-        WHERE s.role = 'user'
-        ORDER BY s.registrationno;
+      FROM users s
+      WHERE s.role = 'user'
+      ORDER BY s.registration_no;
+
       `
     );
 
@@ -187,12 +186,12 @@ export const getAttendanceSheet = async (req, res) => {
 };
 
 export const updateGrade = async (req, res) => {
-  const { registrationno, assignment_id, grade } = req.body;
+  const { registration_no, assignment_id, grade } = req.body;
 
   try {
     await db.query(
-      'UPDATE submissions SET grade = $1 WHERE registrationno = $2 AND assignment_id = $3',
-      [grade, registrationno, assignment_id]
+      'UPDATE submissions SET grade = $1 WHERE registration_no = $2 AND assignment_id = $3',
+      [grade, registration_no, assignment_id]
     );
     res.status(200).json({ message: 'Grade updated successfully' });
   } catch (err) {
@@ -203,56 +202,57 @@ export const updateGrade = async (req, res) => {
 
 
 export const getStudentReport = async (req, res) => {
-  const { registrationno } = req.params;
+  const { registration_no } = req.params;
 
   try {
-    // Get the student's courses (as a JSON array)
+    // Get the student's courses (from the normalized relationship)
     const userResult = await db.query(
-      `SELECT courses FROM users WHERE registrationno = $1`,
-      [registrationno]
+      `SELECT uc.course_id
+       FROM user_courses uc
+       JOIN users u ON u.registration_no = uc.registration_no
+       WHERE u.registration_no = $1`,
+      [registration_no]
     );
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: "Student not found" });
     }
 
-    const coursesString = userResult.rows[0].courses;
-    const courses = JSON.parse(coursesString); // Convert the JSON array to a JavaScript array
+    const courseIds = userResult.rows.map(row => row.course_id);
 
-    if (!Array.isArray(courses) || courses.length === 0) {
+    if (courseIds.length === 0) {
       return res.status(400).json({ error: "No courses found for student" });
     }
 
-    // Get all assignments for the student's courses (now comparing course names correctly)
+    // Get all assignments for the student's courses (now matching course_id)
     const assignmentsResult = await db.query(
-      `SELECT * FROM assignments WHERE course_name = ANY($1::text[])`, // Match against the student's courses
-      [courses]
+      `SELECT * FROM assignments WHERE course_id = ANY($1::int[])`,
+      [courseIds]
     );
 
     const assignments = assignmentsResult.rows;
-
     const today = dayjs();
     const report = [];
 
     for (const assignment of assignments) {
-      // Check if submission exists
+      // Check if submission exists for this assignment and student
       const submissionResult = await db.query(
         `SELECT * FROM submissions 
-         WHERE registrationno = $1 AND assignment_id = $2 AND grade<>'NA'`,
-        [registrationno, assignment.id] // Ensure assignment_id is properly matched
+         WHERE registration_no = $1 AND assignment_id = $2 AND grade <> 'NA'`,
+        [registration_no, assignment.id]
       );
 
       const submission = submissionResult.rows[0];
       const deadline = dayjs(assignment.deadline);
 
       if (submission) {
-        // Student submitted, include actual submission
+        // Student has submitted, include actual submission
         report.push({
           assignment_name: assignment.assignment_name,
           course_name: assignment.course_name,
           submitted_at: submission.submitted_at,
           file_path: submission.file_path,
-          grade: submission.grade || 'na',
+          grade: submission.grade || 'NA',
         });
       } else if (today.isAfter(deadline)) {
         // No submission and deadline passed → mark as F temporarily

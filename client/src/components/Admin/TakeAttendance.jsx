@@ -26,7 +26,9 @@ const TakeAttendance = () => {
   useEffect(() => {
     // Fetch all courses on mount
     axios.get("http://localhost:3000/student-courses")
-      .then(res => setCourses(res.data))
+      .then(res => {
+        setCourses(res.data.data);
+      })
       .catch(err => console.error("Error fetching courses:", err));
   }, []);
 
@@ -36,7 +38,7 @@ const TakeAttendance = () => {
       const res = await axios.get(`http://localhost:3000/students-by-course/${courseName}`);
       const studentsWithAttendance = res.data.map(student => ({
         ...student,
-        id: student.registrationno, // Use registrationno as unique id for DataGrid
+        id: student.registration_no, // Use registration_no as unique id for DataGrid
         attendance: "" // Initialize attendance
       }));
       setStudents(studentsWithAttendance);
@@ -67,7 +69,7 @@ const TakeAttendance = () => {
   const handleSubmitAttendance = async () => {
     try {
         const attendanceData = students.map(student => ({
-            registrationno: student.registrationno,
+            registration_no: student.registration_no,
             course: selectedCourse,
             status: student.attendance || "Absent",
             date: new Date().toISOString().split('T')[0],
@@ -85,7 +87,7 @@ const TakeAttendance = () => {
   
 // Inside your columns array:
 const columns = [
-    { field: "registrationno", headerName: "Reg. No", flex: 1 },
+    { field: "registration_no", headerName: "Reg. No", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     {
       field: "attendance",
@@ -119,19 +121,21 @@ const columns = [
       <HeaderNew title="Take Attendance" subtitle="Mark attendance for a course" />
 
       <Box display="flex" gap={2} mb={2}>
-        <Select
-          value={selectedCourse}
-          onChange={(e) => handleCourseSelect(e.target.value)}
-          displayEmpty
-          fullWidth
-        >
-          <MenuItem value="">Select Course</MenuItem>
-          {courses.map((course) => (
-            <MenuItem key={course} value={course}>
-              {course}
-            </MenuItem>
-          ))}
-        </Select>
+      <Select
+        value={selectedCourse}
+        onChange={(e) => handleCourseSelect(e.target.value)}
+        displayEmpty
+        fullWidth
+      >
+        <MenuItem value="">Select Course</MenuItem>
+        {courses.map((course, index) => (
+          <MenuItem key={index} value={course}>
+            {course}
+          </MenuItem>
+        ))}
+      </Select>
+
+
       </Box>
 
       {students.length > 0 && (

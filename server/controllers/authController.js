@@ -8,7 +8,7 @@ export const login = async (req, res) => {
   const { registration, password } = req.body;
   try {
     const result = await db.query(
-      "SELECT * FROM users WHERE registrationno = $1 AND password = $2",
+      "SELECT * FROM users WHERE registration_no = $1 AND password = $2",
       [registration, password]
     );
     if (result.rows.length > 0) {
@@ -107,7 +107,7 @@ export const updatePassword = async (req, res) => {
   const { registration, newPassword } = req.body;
 
   try {
-    const query = `UPDATE users SET password = '${newPassword}' WHERE registrationno = '${registration}'`;
+    const query = `UPDATE users SET password = '${newPassword}' WHERE registration_no = '${registration}'`;
     const result = await db.query(query);
 
     if (result.rowCount > 0) {
@@ -120,13 +120,13 @@ export const updatePassword = async (req, res) => {
 };
 
 export const checkUserStatus = async (req, res) => {
-  const { registrationno, emailAddress } = req.body;
+  const { registration_no, emailAddress } = req.body;
 
   try {
     // Query the database to find a user with the provided enrollment number and email
     const result = await db.query(
-      "SELECT * FROM users WHERE registrationno = $1 AND email = $2",
-      [registrationno, emailAddress]
+      "SELECT * FROM users WHERE registration_no = $1 AND email = $2",
+      [registration_no, emailAddress]
     );
 
     if (result.rows.length > 0) {

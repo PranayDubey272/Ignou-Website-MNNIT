@@ -1,20 +1,32 @@
 import db from "../database.js";
 
+
 export const getCourses = async (req, res) => {
   try {
-    const registrationno = req.query.registrationno;
+    const { registration_no } = req.query;
 
-    let query = `
-      SELECT courses
-      FROM users
-      WHERE registrationno = $1;
-    `;
-    const result = await db.query(query, [registrationno]);
+    // Get user_id from registration_no
+    const userResult = await db.query(
+      `SELECT user_id FROM users WHERE registration_no = $1`,
+      [registration_no]
+    );
 
-    const courses = result.rows[0].courses;
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    const courseList = courses.split(" ");
+    const userId = userResult.rows[0].user_id;
 
+    // Get all courses associated with the user
+    const coursesResult = await db.query(
+      `SELECT c.course_name
+       FROM user_courses uc
+       JOIN courses c ON uc.course_id = c.course_id
+       WHERE uc.user_id = $1`,
+      [userId]
+    );
+
+    const courseList = coursesResult.rows.map(row => row.course_name);
     res.json(courseList);
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -22,13 +34,13 @@ export const getCourses = async (req, res) => {
   }
 };
 
+
 export const getAllCourses = async (req, res) => {
   try {
-    let query = `
-      SELECT DISTINCT course_name
-      FROM courses;
-    `;
+    // Fetch all distinct courses
+    const query = `SELECT DISTINCT course_name FROM courses`;
     const result = await db.query(query);
+
     const courseList = result.rows.map(row => row.course_name);
     res.json(courseList);
   } catch (error) {
@@ -36,4 +48,5 @@ export const getAllCourses = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch courses" });
   }
 };
+
 

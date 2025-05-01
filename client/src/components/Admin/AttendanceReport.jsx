@@ -23,7 +23,7 @@ import html2canvas from 'html2canvas';
 const AttendanceReport = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [registrationNo, setRegistrationNo] = useState("");
+  const [registration_no, setregistration_no] = useState("");
   const [course, setCourse] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -41,7 +41,7 @@ const AttendanceReport = () => {
   const handleSearch = async () => {
     try {
       const params = {
-        registrationNo: registrationNo || null,
+        registration_no: registration_no || null,
         course,
         startDate: startDate || null,
         endDate: endDate || null
@@ -49,7 +49,7 @@ const AttendanceReport = () => {
 
       const res = await axios.get(`http://localhost:3000/attendance/attendance-report`, { params });
 
-      if (!registrationNo && !startDate && !endDate) {
+      if (!registration_no && !startDate && !endDate) {
         // Summary mode
         setIsSummary(true);
         setAttendanceData(res.data.map((item, idx) => ({
@@ -84,14 +84,14 @@ const AttendanceReport = () => {
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text(`Attendance Report: ${registrationNo || "All Students in " + course}`, 14, 22);
+    doc.text(`Attendance Report: ${registration_no || "All Students in " + course}`, 14, 22);
 
     const tableColumn = isSummary
       ? ["Student Name", "Attendance Percentage"]
       : ["Course", "Date", "Status"];
 
       const tableRows = attendanceData.map((item) => isSummary
-      ? [item.registrationno, `${item.attendance_percentage}%`]
+      ? [item.registration_no, `${item.attendance_percentage}%`]
       : [item.course, item.date, item.status || "N/A"]
     );    
 
@@ -105,10 +105,10 @@ const AttendanceReport = () => {
       html2canvas(chartRef.current).then((canvas) => {
         const dataUrl = canvas.toDataURL('image/png');
         doc.addImage(dataUrl, 'PNG', 14, doc.autoTable.previous.finalY + 20, 180, 100);
-        doc.save(`${registrationNo || "all_students_in_" + course}_attendance_report.pdf`);
+        doc.save(`${registration_no || "all_students_in_" + course}_attendance_report.pdf`);
       });
     } else {
-      doc.save(`${registrationNo || "all_students_in_" + course}_attendance_report.pdf`);
+      doc.save(`${registration_no || "all_students_in_" + course}_attendance_report.pdf`);
     }
   };
 
@@ -147,8 +147,8 @@ const AttendanceReport = () => {
       <Box display="flex" gap={2} mb={2} flexWrap="wrap">
         <TextField
           label="Registration Number (Optional)"
-          value={registrationNo}
-          onChange={(e) => setRegistrationNo(e.target.value)}
+          value={registration_no}
+          onChange={(e) => setregistration_no(e.target.value)}
           fullWidth
         />
         <TextField
@@ -187,12 +187,12 @@ const AttendanceReport = () => {
           columns={
             attendanceData.length > 0 && attendanceData[0].attendance_percentage !== undefined
               ? [
-                  { field: 'registrationno', headerName: 'Registration No', width: 150 },
+                  { field: 'registration_no', headerName: 'Registration No', width: 150 },
                   { field: 'course', headerName: 'Course', width: 150 },
                   { field: 'attendance_percentage', headerName: 'Attendance %', width: 150 }
                 ]
               : [
-                  { field: 'registrationno', headerName: 'Registration No', width: 150 },
+                  { field: 'registration_no', headerName: 'Registration No', width: 150 },
                   { field: 'course', headerName: 'Course', width: 150 },
                   { field: 'date', headerName: 'Date', width: 150 },
                   { field: 'status', headerName: 'Status', width: 150 }

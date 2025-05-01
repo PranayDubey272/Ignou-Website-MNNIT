@@ -22,7 +22,7 @@ const StudentsList = () => {
   const [yearFilter, setYearFilter] = useState("");
 
   const columns = [
-    { field: "registrationno", headerName: "Registration No.", flex: 1 },
+    { field: "registration_no", headerName: "Registration No.", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "programme", headerName: "Programme", flex: 1 },
     { field: "courses", headerName: "Courses", flex: 1 },
@@ -93,8 +93,8 @@ const StudentsList = () => {
         row.name.toString().toLowerCase().includes(nameFilter.toLowerCase()));
     const registrationMatch =
       !registrationFilter ||
-      (row.registrationno &&
-        row.registrationno
+      (row.registration_no &&
+        row.registration_no
           .toString()
           .toLowerCase()
           .includes(registrationFilter.toLowerCase()));
@@ -291,7 +291,7 @@ const StudentsList = () => {
           components={{
             Toolbar: GridToolbar,
           }}
-          getRowId={(row) => row.registrationno}
+          getRowId={(row) => row.registration_no}
         />
       </Box>
     </Box>

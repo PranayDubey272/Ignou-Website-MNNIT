@@ -18,7 +18,7 @@ const AttendanceSheet = () => {
   const [nameFilter, setNameFilter] = useState("");
 
   const columns = [
-    { field: "registrationno", headerName: "Registration No.", flex: 1 },
+    { field: "registration_no", headerName: "Registration No.", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "programme", headerName: "Programme", flex: 1 },
     { field: "signature", headerName: "Signature", flex: 1, editable: true },
@@ -26,7 +26,7 @@ const AttendanceSheet = () => {
   ];
 
   const csvData = data.map((row) => [
-    row.registrationno,
+    row.registration_no,
     row.name,
     row.programme,
     row.signature,
@@ -71,7 +71,7 @@ const AttendanceSheet = () => {
         (row.programme &&
           row.programme.toString().includes(programmeFilter))) &&
       (!registrationFilter ||
-        row.registrationno.includes(registrationFilter.trim().toUpperCase())) &&
+        row.registration_no.includes(registrationFilter.trim().toUpperCase())) &&
       (!nameFilter ||
         row.name.toLowerCase().includes(nameFilter.trim().toLowerCase()))
   );
@@ -117,7 +117,7 @@ const AttendanceSheet = () => {
     );
 
     const tableRows = filteredData.map((row) => [
-      row.registrationno,
+      row.registration_no,
       row.name,
       row.programme,
       row.signature || "", // Ensure signature is not null or undefined
@@ -125,7 +125,7 @@ const AttendanceSheet = () => {
     ]);
 
     const tableColumns = [
-      { header: "Registration No.", dataKey: "registrationno" },
+      { header: "Registration No.", dataKey: "registration_no" },
       { header: "Name", dataKey: "name" },
       { header: "Programme", dataKey: "programme" },
       { header: "Signature", dataKey: "signature" },
@@ -246,7 +246,7 @@ const AttendanceSheet = () => {
           rows={filteredData}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          getRowId={(row) => row.registrationno}
+          getRowId={(row) => row.registration_no}
           processRowUpdate={(newRow, oldRow) => {
             return newRow;
           }}
