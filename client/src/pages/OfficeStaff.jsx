@@ -11,6 +11,7 @@ import axios from "axios";
 import handleLogoutOperations from "../util/utils.js";
 import StaffSidebar from "../sidebar/StaffSidebar.jsx";
 import OfficeStaffDashboard from "../components/OfficeStaff/OfficeStaffDashboard.jsx";
+import AttendanceReport from "../components/Admin/AttendanceReport.jsx";
 
 const Staff = () => {
   const navigator = useNavigate();
@@ -28,10 +29,16 @@ const Staff = () => {
 
         // Define the token (replace 'your-token' with the actual token)
         const token = localStorage.getItem("token");
+        if (!token) {
+          handleLogoutOperations();
+          alert("No token found. Please log in again.");
+          navigator("/");
+          return;
+        }
 
         // Define the headers with the authorization token
         const headers = {
-          Authorization: token,
+            Authorization: `Bearer ${token}`, // Fix: Add 'Bearer' prefix
         };
 
         // Make the request to the endpoint
@@ -78,7 +85,7 @@ const Staff = () => {
             {page === "Dashboard" && <OfficeStaffDashboard handlePage={handlePage} />}
             {page === "StudentList" && <StudentsList></StudentsList>}
             {page === "Assignment" && <AssignmentList></AssignmentList>}
-            {/* {page === "Attendance" && <AttendanceSheet></AttendanceSheet>} */}
+            {page === "AttendanceReport" && <AttendanceReport></AttendanceReport>}
             {page === "BCA" && <></>}
             {page === "PGDCA" && <></>}
           </main>

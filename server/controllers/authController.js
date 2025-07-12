@@ -11,13 +11,21 @@ export const login = async (req, res) => {
       "SELECT * FROM users WHERE registration_no = $1 AND password = $2",
       [registration, password]
     );
+    
     if (result.rows.length > 0) {
-      const token = jwt.sign({ data: result.rows[0] }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      const user = result.rows[0];
+      // Creating token with specific fields: registration_no and role
+      const token = jwt.sign(
+        { registration_no: user.registration_no, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+      
       res.status(200).json({
         success: true,
         message: "Login successful",
         token,
-        role: result.rows[0].role,
+        role: user.role,  // You can still send the role separately if needed
       });
     } else {
       res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -28,19 +36,18 @@ export const login = async (req, res) => {
   }
 };
 
+
 export const verifyStudent = (req, res) => {
   res.status(200).json({ success: true, message: "Token verified" });
 };
 
-export const verifyAdmin = async (req, res) => {
-  try {
-    // just returning a success response, assuming user is already verified via middleware
-    return res.status(200).json({ success: true, message: "Admin verified" });
-  } catch (err) {
-    console.error("verifyAdmin error:", err);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+export const verifyAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: "Forbidden - Admins only" });
   }
+  return next(); // Proceed to the next middleware or route handler
 };
+
 
 export const verifyStaff = async (req, res) => {
   try {

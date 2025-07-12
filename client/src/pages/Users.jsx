@@ -30,10 +30,16 @@ const Users = () => {
 
         // Define the token (replace 'your-token' with the actual token)
         const token = localStorage.getItem("token");
-
-        // Define the headers with the authorization token
+  
+        if (!token) {
+          handleLogoutOperations();
+          alert("No token found. Please log in again.");
+          navigator("/");
+          return;
+        }
+  
         const headers = {
-          Authorization: token,
+          Authorization: `Bearer ${token}`, // Fix: Add 'Bearer' prefix
         };
 
         // Make the request to the endpoint

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   IconButton,
@@ -22,13 +22,13 @@ const AnnouncementDeletePage = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [selectedAnnouncementId, setSelectedAnnouncementId] = useState(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-
+  
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
         const response = await axios.get(
           "http://localhost:3000/announcements"
-        );
+        );''
         setAnnouncements(response.data);
       } catch (error) {
         console.error("Error fetching announcements:", error);
@@ -36,12 +36,22 @@ const AnnouncementDeletePage = () => {
     };
     fetchAnnouncements();
   }, []);
-
-  const downloadFile = (filePath) => {
-    saveAs(filePath)
-      .then(() => console.log("File downloaded successfully"))
-      .catch((error) => console.error("Error downloading file:", error));
-  };
+  
+  const downloadFile = useCallback((filePath) => {
+    try {
+      saveAs(filePath);
+      console.log("File downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  }, []);
+  const handleDownloadClick = useCallback(
+    (filePath) => () => {
+      downloadFile(filePath);
+    },
+    [downloadFile] // dependency
+  );
+  
 
   const handleOpenConfirmation = (announcementId) => {
     setSelectedAnnouncementId(announcementId);
@@ -89,7 +99,7 @@ const AnnouncementDeletePage = () => {
         <GridActionsCellItem
           icon={
             params.row.file_path ? (
-              <IconButton onClick={() => downloadFile(params.row.file_path)}>
+              <IconButton onClick={handleDownloadClick(params.row.file_path)}>
                 <DownloadIcon />
               </IconButton>
             ) : (

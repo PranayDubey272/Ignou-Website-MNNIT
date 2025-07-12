@@ -13,9 +13,16 @@ import { verifyToken, verifyAdmin as isAdmin} from "../middlewares/auth.js";
 const router = express.Router();
 
 router.post("/login", login);
-router.get("/verifystudent", verifyToken, verifyStudent);
-router.get("/verifyadmin", verifyToken, verifyAdmin);
-router.get("/verifystaff", verifyToken, verifyStaff);
+
+router.get("/verifystudent", verifyToken, verifyStudent,  (req, res) => {
+  res.status(200).json({ success: true, message: "Student verified" });
+});
+router.get("/verifyadmin", verifyToken, verifyAdmin, (req, res) => {
+  res.status(200).json({ success: true, message: "Admin verified" });
+});
+router.get("/verifystaff", verifyToken, verifyStaff, (req, res) => {
+  res.status(200).json({ success: true, message: "Staff verified" });
+});
 
 router.post("/forgot-password", forgotPassword);
 router.post('/reset-password/:token', resetPassword);

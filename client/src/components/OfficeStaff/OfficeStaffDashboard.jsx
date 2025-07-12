@@ -76,7 +76,7 @@ const OfficeStaffDashboard = ({ handlePage }) => {
           style={{ cursor: "pointer" }}
         >
           <StatBox
-            title="Attendance Sheet"
+            title="Attendance Report"
             subtitle=""
             progress=""
             increase=""

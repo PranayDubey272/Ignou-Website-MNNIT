@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import handleLogoutOperations from "../util/utils";
 
-
 const useLoginHandler = (setregistration_no) => {
   const [loginError, setLoginError] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
@@ -14,15 +13,20 @@ const useLoginHandler = (setregistration_no) => {
     try {
       const response = await axios.post("http://localhost:3000/login", { registration, password });
       if (response.data.success) {
-        localStorage.setItem("isLogedIn", true);  // Store login status
-        localStorage.setItem("token", response.data.token);  // Store the token
+        // Store login status and token
+        localStorage.setItem("isLogedIn", true);
+        localStorage.setItem("token", response.data.token);  // Store the JWT token
+  
+        // Attach the token to axios headers for future requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+  
+        // Navigate based on role
         if (response.data.role === "admin") {
-
           navigate("/Admin");
         } else if (response.data.role === "office_staff") {
-            navigate("/Staff");
+          navigate("/Staff");
         } else {
-            navigate("/users", { state: { registration_no: registration } });
+          navigate("/users", { state: { registration_no: registration } });
         }
       } else {
         handleLogoutOperations();

@@ -165,7 +165,7 @@ const AttendanceSheet = () => {
   return (
     <Box m="20px">
       <HeaderNew
-        title="Attendance Sheet"
+        title="Attendance Report"
         subtitle="Mark Attendance for Students"
       />
       <Box display="flex" alignItems="center" mb={2}>

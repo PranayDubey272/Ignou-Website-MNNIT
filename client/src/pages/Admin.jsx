@@ -22,6 +22,8 @@ import AddAssignment from "../components/Admin/AddAssignment.jsx";
 import AssignmentReport from "../components/Admin/AssignmentReport.jsx";
 import TakeAttendance from "../components/Admin/TakeAttendance.jsx";
 import MarksEntry from "../components/Admin/MarksEntry.jsx";
+import AddStaff from "../components/Admin/AddStaff.jsx";
+
 const Admin = () => {
   const navigator = useNavigate();
   const [theme, colorMode] = useMode();
@@ -36,38 +38,43 @@ const Admin = () => {
         const URL =
           "http://localhost:3000/verifyadmin";
 
-        // Define the token (replace 'your-token' with the actual token)
-        const token = localStorage.getItem("token");
-        // Define the headers with the authorization token
-        const headers = {
-          Authorization: token,
-        };
-
-        // Make the request to the endpoint
-        const response = await axios.get(URL, { headers });
-
-        if (response.data.success === true) {
-          setTokenValid(true);
-        } else {
+          const token = localStorage.getItem("token");
+  
+          if (!token) {
+            handleLogoutOperations();
+            alert("No token found. Please log in again.");
+            navigator("/");
+            return;
+          }
+    
+          const headers = {
+            Authorization: `Bearer ${token}`, // Fix: Add 'Bearer' prefix
+          };
+    
+          const response = await axios.get(URL, { headers });
+    
+          if (response.data.success === true) {
+            setTokenValid(true);
+          } else {
+            handleLogoutOperations();
+            alert("You are not authorized to access this page");
+            navigator("/");
+          }
+        } catch (error) {
           handleLogoutOperations();
-          alert("You are not authorized to access this page");
           navigator("/");
+          alert("You are not authorized. Please try again later.");
+          console.error(
+            "Error:",
+            error.response ? error.response.data : error.message
+          );
         }
-      } catch (error) {
-        handleLogoutOperations();
-        navigator("/");
-        alert("You are not authorized. Please try again later.");
-        // Log the error message
-        console.error(
-          "Error:",
-          error.response ? error.response.data : error.message
-        );
-      }
-    }
-
+      }  
     // Call the function to verify admin
     verifyAdmin();
   }, [navigator]);
+
+
 
   if (!tokenValid) {
     return null; // or any loading state or component while checking token validity
@@ -104,8 +111,10 @@ const Admin = () => {
             {page === "AnnouncementDeletePage" && (
               <AnnouncementDeletePage></AnnouncementDeletePage>
             )}
+            {page === "AddStaff" && <AddStaff></AddStaff>}
             {page === "BCA" && <></>}
             {page === "PGDCA" && <></>}
+
           </main>
         </div>
       </ThemeProvider>

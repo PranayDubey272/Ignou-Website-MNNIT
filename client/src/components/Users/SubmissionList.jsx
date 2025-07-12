@@ -97,7 +97,7 @@ const SubmissionList = () => {
   return (
     <Box m="20px">
       <HeaderNew
-        title="Submssion List"
+        title="Submission List"
         subtitle="List of submission for Future Reference"
       />
 

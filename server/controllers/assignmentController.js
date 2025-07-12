@@ -5,6 +5,7 @@ import db from "../database.js";
 export const handleAssignmentAddition = async (req, res) => {
   try {
     const { courseName, assignmentName, deadline } = req.body;
+    const { registration_no, role } = req.user; 
 
     if (!courseName || !assignmentName || !deadline || !req.file) {
       return res.status(400).json({ error: "Missing required fields or file." });
@@ -19,6 +20,17 @@ export const handleAssignmentAddition = async (req, res) => {
       return res.status(404).json({ error: "Course not found." });
     }
     const courseId = courseRes.rows[0].course_id;
+
+    // If evaluator, verify they are assigned to this course
+    if (role === 'evaluator') {
+      const accessRes = await db.query(
+        "SELECT * FROM user_courses WHERE registration_no = $1 AND course_id = $2",
+        [registration_no, courseId]
+      );
+      if (accessRes.rows.length === 0) {
+        return res.status(403).json({ error: "You are not authorized to add assignments to this course." });
+      }
+    }
 
     // Check if assignment already exists
     const existingAssignment = await db.query(
@@ -44,6 +56,7 @@ export const handleAssignmentAddition = async (req, res) => {
     res.status(500).json({ error: "Error adding assignment." });
   }
 };
+
 
 
 export const handleAssignmentSubmission = async (req, res) => {
@@ -148,19 +161,46 @@ export const getAssignmentsForStudent = async (req, res) => {
 
 export const getAllSubmittedAssignments = async (req, res) => {
   try {
-    const query = `
-      SELECT s.*, u.name AS student_name, a.assignment_name, c.course_name
-      FROM submissions s
-      JOIN users u ON s.registration_no = u.registration_no
-      JOIN assignments a ON s.assignment_id = a.id
-      JOIN courses c ON a.course_id = c.course_id
-      ORDER BY submitted_at DESC;
-    `;
-    const result = await db.query(query);
+    const { registration_no, role } = req.user; // assume this is populated via auth middleware
+
+    let query;
+    let params;
+
+    if (role === 'admin') {
+      // Fetch everything
+      query = `
+        SELECT s.*, u.name AS student_name, a.assignment_name, c.course_name
+        FROM submissions s
+        JOIN users u ON s.registration_no = u.registration_no
+        JOIN assignments a ON s.assignment_id = a.id
+        JOIN courses c ON a.course_id = c.course_id
+        ORDER BY submitted_at DESC;
+      `;
+      params = [];
+    } else if (role === 'evaluator') {
+      // Fetch only from courses this evaluator is assigned to (via user_courses)
+      query = `
+        SELECT s.*, u.name AS student_name, a.assignment_name, c.course_name
+        FROM submissions s
+        JOIN users u ON s.registration_no = u.registration_no
+        JOIN assignments a ON s.assignment_id = a.id
+        JOIN courses c ON a.course_id = c.course_id
+        WHERE c.course_id IN (
+          SELECT course_id FROM user_courses WHERE registration_no = $1
+        )
+        ORDER BY submitted_at DESC;
+      `;
+      params = [registration_no];
+    } else {
+      return res.status(403).json({ message: "Unauthorized role" });
+    }
+
+    const result = await db.query(query, params);
     res.json(result.rows);
   } catch (error) {
-    console.error("Error fetching all assignments", error);
+    console.error("Error fetching submitted assignments:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
